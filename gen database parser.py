@@ -40,13 +40,13 @@ while cardvariable_valid == False and cardparam_valid == False:
                          print('id is incorrect format please try again')
                case 'type':
                     Type_check = open("Types_for_check.txt",'r')
-                    for x in card_set_check:
-                    try:
-                         if x == corresponding_variable:
-                              cardvariable_valid = True
-                              card_set_check.close()
-                    except:
-                         print('corresponding variable does not match, use no capitals.')
+                    for x in Type_check:
+                         try:
+                              if x == corresponding_variable:
+                                   cardvariable_valid = True
+                                   Type_check.close()
+                         except:
+                              print('corresponding variable does not match, use no capitals.')
                case 'atk':
                     if corresponding_variable.isdigit() == True or corresponding_variable == '?':
                          cardvariable_valid = True
@@ -107,7 +107,6 @@ while cardvariable_valid == False and cardparam_valid == False:
                               cardset_check.close()
                          else:
                               print('Cardset is not in database, check name and try again')
-               case
 
     
 
