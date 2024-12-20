@@ -15,10 +15,10 @@ os.chdir(script_directory)
 
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
 list_of_races = ['aqua','beast','beast-warrior','creator-god','cyberse','dinosaur','divine-beast','dragon','fairy','fiend','fish','insect','machine','plant','psychic','pyro','reptile','rock','sea serpent','spellcaster','thunder','warrior','winged beast','wyrm','zombie','normal','field','equip','continuous','quick-play','ritual','normal','continuous','counter']
-list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist','format','misc','has_effect'] #LIST OF ACCEPTABLE PARAMETERS
-list_of_types = ["effect monster","flip effect monster","flip tuner effect monster","gemini monster","normal monster","normal tuner monster","pendulum effect monster","pendulum effect ritual monster","pendulum flip effect monster","pendulum normal monster","pendulum tuner effect monster","ritual effect monster","ritual monster","spell card","spirit monster","toon monster","trap card","tuner monster","union effect monster","fusion monster","link monster","pendulum effect fusion monster","synchro monster","synchro pendulum effect monster","synchro tuner monster","xyz Monster","xyz pendulum effect monster","skill card","token"]
+list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist','format'] #LIST OF ACCEPTABLE PARAMETERS
 list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
 list_of_linkmarkers = ['top', 'bottom', 'left', 'right', 'bottom-left', 'bottom-right', 'top-left', 'top-right']
+list_of_formats = ['TCG','OCG','GOAT']
 
 
 cardparam_valid = False
@@ -102,16 +102,33 @@ while cardvariable_valid == False and cardparam_valid == False:
                case 'cardset':
                     cardset_check = open("Cardset_for_check.txt",'r')
                     for x in cardset_check:
-                         if x == corresponding_variable:
-                              cardvariable_valid = True
-                              cardset_check.close()
-                         else:
+                         try:
+                              if x == corresponding_variable:
+                                   cardvariable_valid = True
+                                   cardset_check.close()
+                         except:
                               print('Cardset is not in database, check name and try again')
+               case 'archetype':
+                    Archetype_check = open("Archetypes_for_check.txt",'r')
+                    for x in Archetype_check:
+                         try:
+                              if x == corresponding_variable:
+                                   cardvariable_valid = True
+                                   Archetype_check.close()
+                         except:
+                              print('Cardset is not in database, check name and try again')
+               case 'banlist':
+                    if  corresponding_variable.upper in list_of_formats:
+                         cardvariable_valid = True
+                    else:
+                         print('The banlist for this format does not exist,try again')
+               case 'format':
+                    if  corresponding_variable.upper in list_of_formats:
+                         cardvariable_valid = True
+                    else:
+                         print('This format does not exist,try again')
+               
 
-    
-
-                    
-          
 
 
 if cardvariable_valid == True:
