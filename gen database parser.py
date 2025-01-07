@@ -3,47 +3,66 @@ import requests
 import os
 from sys import argv
 # THIS IS A BETA VERSION OF THE GENERIC CARD SEARCH
-
+looper = 1
 
 def jprint(obj):#THIS FUNCTION ALLOWS FOR PRINTING OF THE REQUEST SENT INTO THE API
      text = json.dumps(obj, sort_keys= True, indent= 4)
      print(text)
 
-def error():
+def error(card_parameter): #this funtion is the mapped to each error and runs whenever an error occurs for the card parameters
      print('Error has occured')
-     match card_parameter:#SWITCH CASE TO VALIDATE THE PARAMETERS AND CORRESPONDING VARIABLE
+     match card_parameter:
+               case 'general':
+                    print('Please try again')
+                    looper +=1
                case 'name':
                     print('Name is not correct please try again')
+                    looper +=1
                case 'fname':
                     print('fname is not correct please try again')
+                    looper +=1
                case 'id':
                     print('id is incorrect format please try again')
+                    looper +=1
                case 'type':
                     print('corresponding variable does not match, use no capitals.')
+                    looper +=1
                case 'atk':
                     print('Attack value not correct format')
+                    looper +=1
                case 'def':
                     print('Defense value not correct format')
+                    looper +=1
                case 'level':
                     print('level value is not a number please try again')
+                    looper +=1
                case 'race':
                     print('Incorrect card race please try again')
+                    looper +=1
                case 'attribute':
                     print('Attribute is not real please try again')
+                    looper +=1
                case 'link':
                     print('link value is not a number please try again')
+                    looper +=1
                case 'linkmarker':
                     print('Incorrect format please try again (make sure format is in word form and lowercase with dashes)')
+                    looper +=1
                case 'scale':
                     print('scale value is not a number please try again')
+                    looper +=1
                case 'cardset':
                     print('cardset not in set, please try again')
+                    looper +=1
                case 'archetype':
                     print('Archetype not in set, please try again')
+                    looper +=1
                case 'banlist':
                     print('The banlist for this format does not exist,try again')
+                    looper +=1
                case 'format':
                     print('This format does not exist,try again')
+                    looper +=1
                
 
 
@@ -64,13 +83,16 @@ def card_parser(card_parameter , corresponding_variable):
      match card_parameter:#SWITCH CASE TO VALIDATE THE PARAMETERS AND CORRESPONDING VARIABLE
           case 'name':
                return(True)
+               looper = 0
           case 'fname':
                return(True)
+               looper = 0
           case 'id':
                if corresponding_variable.isdigit() == True:
                     return(True)
+                    looper = 0
                else:
-                    print('id is incorrect format please try again')
+                    error('id')
           case 'type':
                Type_check = open("Types_for_check.txt",'r')
                for x in Type_check:
@@ -78,60 +100,75 @@ def card_parser(card_parameter , corresponding_variable):
                          if x == corresponding_variable:
                               return(True)
                               Type_check.close()
+                              looper = 0
                     except:
-                         print('corresponding variable does not match, use no capitals.')
+                         error('type')
           case 'atk':
                if corresponding_variable.isdigit() == True or corresponding_variable == '?':
                     return(True)
+                    looper = 0
                else:
-                    print('Attack value not correct format')
+                    error('atk')
           case 'def':
                if corresponding_variable.isdigit() == True or corresponding_variable == '?':
                     return(True)
+                    looper = 0
                else:
-                    print('Defense value not correct format')
+                    error('def')
           case 'level':
                if corresponding_variable.isdigit() == True:
                     try:
                          if int(corresponding_variable) < 0 and int(corresponding_variable) > 13:
                               return(True)
+                              looper = 0
+     
                     except:
-                         print('Level is not between 1 and 12 please try again')
+                         print('level not between 1-12')
+                         error('general')
                else:
-                    print('level value is not a number please try again')
+                    error('level')
           case 'race':
                if corresponding_variable in list_of_races:
                     return(True)
+                    looper = 0
                else:
-                    print('Incorrect card race please try again')
+                    error('race')
           case 'attribute':
                if corresponding_variable.upper() in list_of_attributes:
                     return(True)
+                    looper = 0
                else:
-                    print('Attribute is not real please try again')
+                    error('attribute')
           case 'link':
                if corresponding_variable.isdigit() == True:
                     try:
                          if int(corresponding_variable) < 0 and int(corresponding_variable) > 7:
                               return(True)
+                              looper = 0
+     
                     except:
                          print('Link is not between 1 and 6 please try again')
+                         error('general')
                else:
-                    print('link value is not a number please try again')
+                    error('link')
           case 'linkmarker':
                if corresponding_variable.lower() in list_of_linkmarkers:
                     return(True)
+                    looper = 0
                else:
-                    print('Incorrect format please try again (make sure format is in word form and lowercase with dashes)')
+                    error('linkmarker')
           case 'scale':
                if corresponding_variable.isdigit() == True:
                     try:
                          if int(corresponding_variable) < -1 and int(corresponding_variable) > 14:
                               return(True)
+                              looper = 0
+     
                     except:
-                         print('scale is not between 0 and 13 please try again')
+                         print('Scale value is not between 0 and 13')
+                         error('general')
                else:
-                    print('scale value is not a number please try again')
+                    print('scale')
           case 'cardset':
                cardset_check = open("Cardset_for_check.txt",'r')
                for x in cardset_check:
@@ -139,8 +176,10 @@ def card_parser(card_parameter , corresponding_variable):
                          if x == corresponding_variable:
                               return(True)
                               cardset_check.close()
+                              looper = 0
+     
                     except:
-                         error()
+                         error('cardset')
           case 'archetype':
                Archetype_check = open("Archetypes_for_check.txt",'r')
                for x in Archetype_check:
@@ -148,33 +187,42 @@ def card_parser(card_parameter , corresponding_variable):
                          if x == corresponding_variable:
                               return(True)
                               Archetype_check.close()
+                              looper = 0
+     
                     except:
-                         error()
+                         error('archetype')
           case 'banlist':
                if  corresponding_variable.upper in list_of_formats:
                     return(True)
+                    looper = 0
                else:
-                    error()
+                    error('banlist')
           case 'format':
                if  corresponding_variable.upper in list_of_formats:
                     return(True)
+                    looper = 0
                else:
-                    error()
+                    error('format')
+     if card_parameter not in list_of_acceptable_params:
+          print('Parameter not parasable')
+          error('general')
                
 
     
-
-card_parameter = input('what ygo api type thing are you searching for: ') # THIS LINE TAKES A PARAMETER
-corresponding_variable = input('corresponding: ')                   
+while looper > 0:
+     card_parameter = input('what ygo api type thing are you searching for: ')
+     corresponding_variable = input('corresponding: ')                   
           
-parse = card_parser(card_parameter)
+     try:
+          parse = card_parser(card_parameter,corresponding_variable)
+          if parse == True:
+               r = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php',params={
+               f'{card_parameter}' : f'{corresponding_variable}',})
 
-if parse == True:
-     r = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php',params={
-     f'{card_parameter}' : f'{corresponding_variable}',})
-
-     if r.status_code == 200:
-          jprint(r.json())
-
-     else:
-          print('error')
+               if r.status_code == 200:
+                    jprint(r.json())
+                    looper = 0
+               else:
+                    print('error')
+     except:
+          print('Error has occured in database parser')
