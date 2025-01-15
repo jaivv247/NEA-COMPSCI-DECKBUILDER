@@ -16,7 +16,7 @@ def error(card_parameter): #this funtion is the mapped to each error and runs wh
                     print('Please try again')
                     looper +=1
                case 'id':
-                    print('id is incorrect format please try again')
+                    print('id is incorrect format, check if id is 8 numbers, please try again')
                     looper +=1
                case 'type':
                     print('corresponding variable does not match, use no capitals.')
@@ -25,7 +25,6 @@ def error(card_parameter): #this funtion is the mapped to each error and runs wh
                     print('Attack value not correct format')
                     looper +=1
                case 'def':
-                    print('Defense value not correct format')
                     looper +=1
                case 'level':
                     print('level value is not a number please try again')
@@ -82,13 +81,15 @@ def card_parser(card_parameter , corresponding_variable):
                looper = 0
                return (True)
           case 'id':
-               if corresponding_variable.isdigit() == True:
+               if corresponding_variable.isdigit() == True and len(corresponding_variable)== 8:
                     looper = 0
                     return (True)
                else:
                     error('id')
           case 'type':
                Type_check = open("Types_for_check.txt",'r')
+               tracker = 0
+               flag = False
                for x in Type_check:
                     try:
                          if x == corresponding_variable:
@@ -96,7 +97,12 @@ def card_parser(card_parameter , corresponding_variable):
                               looper = 0
                               return (True)
                     except:
-                         error('type')
+                         tracker +=1
+                         if tracker >= 29:
+                              Type_check.close
+                              flag = True
+               if flag == True:
+                    error('type')
           case 'atk':
                if corresponding_variable.isdigit() == True or corresponding_variable == '?':
                     looper = 0
