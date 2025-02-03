@@ -15,8 +15,14 @@ def error(card_parameter): #this funtion is the mapped to each error and runs wh
                case 'general':
                     print('Please try again')
                     looper +=1
+               case 'name':
+                    print('Name is not correct please try again')
+                    looper +=1
+               case 'fname':
+                    print('fname is not correct please try again')
+                    looper +=1
                case 'id':
-                    print('id is incorrect format, check if id is 8 numbers, please try again')
+                    print('id is incorrect format please try again')
                     looper +=1
                case 'type':
                     print('corresponding variable does not match, use no capitals.')
@@ -25,6 +31,7 @@ def error(card_parameter): #this funtion is the mapped to each error and runs wh
                     print('Attack value not correct format')
                     looper +=1
                case 'def':
+                    print('Defense value not correct format')
                     looper +=1
                case 'level':
                     print('level value is not a number please try again')
@@ -75,52 +82,49 @@ list_of_formats = ['TCG','OCG','GOAT']
 def card_parser(card_parameter , corresponding_variable):
      match card_parameter:#SWITCH CASE TO VALIDATE THE PARAMETERS AND CORRESPONDING VARIABLE
           case 'name':
+               return(True)
                looper = 0
-               return (True)
           case 'fname':
+               return(True)
                looper = 0
-               return (True)
           case 'id':
-               if corresponding_variable.isdigit() == True and len(corresponding_variable)== 8:
+               if corresponding_variable.isdigit() == True:
+                    return(True)
                     looper = 0
-                    return (True)
                else:
                     error('id')
           case 'type':
-               Type_check = open("Types_for_check.txt",'r')
-               tracker = 0
-               flag = False
+               looper = 0
+               #print('test')
+               Type_check = open('Types_for_check.txt','r')
                for x in Type_check:
+                    x = (line.strip())
                     try:
                          if x == corresponding_variable:
+                              return(True)
                               Type_check.close()
                               looper = 0
-                              return (True)
                     except:
-                         tracker +=1
-                         if tracker >= 29:
-                              Type_check.close
-                              flag = True
-               if flag == True:
-                    error('type')
+                         error('type')
           case 'atk':
                if corresponding_variable.isdigit() == True or corresponding_variable == '?':
+                    return(True)
                     looper = 0
-                    return (True)
                else:
                     error('atk')
           case 'def':
                if corresponding_variable.isdigit() == True or corresponding_variable == '?':
+                    return(True)
                     looper = 0
-                    return (True)
                else:
                     error('def')
           case 'level':
                if corresponding_variable.isdigit() == True:
                     try:
-                         if int(corresponding_variable) < 0 and int(corresponding_variable) > 13: 
-                              looper = 0
+                         if int(corresponding_variable) < 0 and int(corresponding_variable) > 13:
                               return(True)
+                              looper = 0
+     
                     except:
                          print('level not between 1-12')
                          error('general')
@@ -128,22 +132,23 @@ def card_parser(card_parameter , corresponding_variable):
                     error('level')
           case 'race':
                if corresponding_variable in list_of_races:
-                    looper = 0
                     return(True)
+                    looper = 0
                else:
                     error('race')
           case 'attribute':
                if corresponding_variable.upper() in list_of_attributes:
-                    looper = 0
                     return(True)
+                    looper = 0
                else:
                     error('attribute')
           case 'link':
                if corresponding_variable.isdigit() == True:
                     try:
                          if int(corresponding_variable) < 0 and int(corresponding_variable) > 7:
-                              looper = 0
                               return(True)
+                              looper = 0
+     
                     except:
                          print('Link is not between 1 and 6 please try again')
                          error('general')
@@ -151,16 +156,17 @@ def card_parser(card_parameter , corresponding_variable):
                     error('link')
           case 'linkmarker':
                if corresponding_variable.lower() in list_of_linkmarkers:
-                    looper = 0
                     return(True)
+                    looper = 0
                else:
                     error('linkmarker')
           case 'scale':
                if corresponding_variable.isdigit() == True:
                     try:
                          if int(corresponding_variable) < -1 and int(corresponding_variable) > 14:
-                              looper = 0
                               return(True)
+                              looper = 0
+     
                     except:
                          print('Scale value is not between 0 and 13')
                          error('general')
@@ -171,9 +177,10 @@ def card_parser(card_parameter , corresponding_variable):
                for x in cardset_check:
                     try:
                          if x == corresponding_variable:
+                              return(True)
                               cardset_check.close()
                               looper = 0
-                              return(True)
+     
                     except:
                          error('cardset')
           case 'archetype':
@@ -181,22 +188,22 @@ def card_parser(card_parameter , corresponding_variable):
                for x in Archetype_check:
                     try:
                          if x == corresponding_variable:
-                              
+                              return(True)
                               Archetype_check.close()
                               looper = 0
-                              return(True)
+     
                     except:
                          error('archetype')
           case 'banlist':
                if  corresponding_variable.upper in list_of_formats:
-                    looper = 0
                     return(True)
+                    looper = 0
                else:
                     error('banlist')
           case 'format':
                if  corresponding_variable.upper in list_of_formats:
-                    looper = 0
                     return(True)
+                    looper = 0
                else:
                     error('format')
      if card_parameter not in list_of_acceptable_params:
@@ -220,6 +227,7 @@ while looper > 0:
                     looper = 0
                else:
                     print('error')
-                    error('general')
      except:
           print('Error has occured in database parser')
+
+     
