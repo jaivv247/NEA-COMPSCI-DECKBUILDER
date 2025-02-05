@@ -95,15 +95,18 @@ def card_parser(card_parameter , corresponding_variable):
                     error('id')
           case 'type':
                with open('Types_for_check.txt') as Type_check: # opens text file with all the types
+                    #print('test')
                     datafile = Type_check.readlines() #creates a variable to store the list
                     length_of_file = len(datafile) #finds out the amount of lines in the file
                     len_counter = 0 # counter to show what line we are on
                     while len_counter < length_of_file: #whilst we havent looked at the whole file
+                         #print('test')
                          for line in datafile: # for each line in the file
                                if corresponding_variable.upper() in line: # we check if the corresponding variable is in the list
                                      Type_check.close()
                                      looper = 0
-                                     len_counter = length_of_file +1 # does this to stop the while loop whilst also not flag an error
+                                     len_counter = length_of_file +1# does this to stop the while loop whilst also not flag an error
+                                     #print('test')
                                      return(True)
                                else:
                                      len_counter +=1 # increments if the current line is not the same as our variable
@@ -123,18 +126,16 @@ def card_parser(card_parameter , corresponding_variable):
                     error('def')
           case 'level':
                if corresponding_variable.isdigit() == True:
-                    try:
-                         if int(corresponding_variable) < 0 and int(corresponding_variable) > 13:
-                              return(True)
-                              looper = 0
-     
-                    except:
-                         print('level not between 1-12')
+                    if int(corresponding_variable) > 0 and int(corresponding_variable) < 13:
+                         return(True)
+                         looper = 0
+                    elif int(corresponding_variable) < 0 or int(corresponding_variable) > 13:
+                         print('value is not in correct range')
                          error('general')
                else:
                     error('level')
           case 'race':
-               if corresponding_variable in list_of_races:
+               if corresponding_variable.lower() in list_of_races:
                     return(True)
                     looper = 0
                else:
@@ -184,6 +185,7 @@ def card_parser(card_parameter , corresponding_variable):
                          for line in datafile:
                                if corresponding_variable.upper() in line:
                                      Type_check.close()
+
                                      looper = 0
                                      len_counter = length_of_file +1
                                      return(True)
@@ -192,21 +194,21 @@ def card_parser(card_parameter , corresponding_variable):
                     if len_counter == length_of_file:
                          error('cardset')
           case 'archetype':
-                  with open('Archetypes_for_check.txt') as Type_check:
-                    datafile = Type_check.readlines()
-                    length_of_file = len(datafile) 
-                    len_counter = 0
-                    while len_counter < length_of_file:
-                         for line in datafile:
-                               if corresponding_variable.upper() in line:
-                                     Type_check.close()
-                                     looper = 0
-                                     len_counter = length_of_file +1
-                                     return(True)
-                               else:
-                                     len_counter +=1
-                    if len_counter == length_of_file:
-                         error('archetype')
+                    with open('Archetypes_for_check.txt') as Type_check:
+                         datafile = Type_check.readlines()
+                         length_of_file = len(datafile) 
+                         len_counter = 0
+                         while len_counter < length_of_file:
+                              for line in datafile:
+                                   if corresponding_variable.upper() in line:
+                                        Type_check.close()
+                                        looper = 0
+                                        len_counter = length_of_file +1
+                                        return(True)
+                                   else:
+                                        len_counter +=1
+                         if len_counter == length_of_file:
+                              error('archetype')
           case 'banlist':
                if  corresponding_variable.upper in list_of_formats:
                     return(True)
@@ -219,7 +221,7 @@ def card_parser(card_parameter , corresponding_variable):
                     looper = 0
                else:
                     error('format')
-     if card_parameter not in list_of_acceptable_params:
+     if card_parameter.lower() not in list_of_acceptable_params:
           print('Parameter not parasable')
           error('general')
                
