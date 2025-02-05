@@ -1,29 +1,29 @@
-Effect Monster
-Flip Effect Monster
-Flip Tuner Effect Monster
-Gemini Monster
-Normal Monster
-Normal Tuner Monster
-Pendulum Effect Monster
-Pendulum Effect Ritual Monster
-Pendulum Flip Effect Monster
-Pendulum Normal Monster
-Pendulum Tuner Effect Monster
-Ritual Effect Monster
-Ritual Monster
-Spell
-Spirit Monster
-Toon Monster
-Trap
-Tuner Monster
-Union Effect Monster
-Fusion Monster
-Link Monster
-Pendulum Effect Fusion Monster
-Synchro Monster
-Synchro Pendulum Effect Monster
-Synchro Tuner Monster
-XYZ Monster
-XYZ Pendulum Effect Monster
-Skill Card
-Token
+EFFECT MONSTER
+FLIP EFFECT MONSTER
+FLIP TUNER EFFECT MONSTER
+GEMINI MONSTER
+NORMAL MONSTER
+NORMAL TUNER MONSTER
+PENDULUM EFFECT MONSTER
+PENDULUM EFFECT RITUAL MONSTER
+PENDULUM FLIP EFFECT MONSTER
+PENDULUM NORMAL MONSTER
+PENDULUM TUNER EFFECT MONSTER
+RITUAL EFFECT MONSTER
+RITUAL MONSTER
+SPELL
+SPIRIT MONSTER
+TOON MONSTER
+TRAP
+TUNER MONSTER
+UNION EFFECT MONSTER
+FUSION MONSTER
+LINK MONSTER
+PENDULUM EFFECT FUSION MONSTER
+SYNCHRO MONSTER
+SYNCHRO PENDULUM EFFECT MONSTER
+SYNCHRO TUNER MONSTER
+XYZ MONSTER
+XYZ PENDULUM EFFECT MONSTER
+SKILL CARD
+TOKEN
