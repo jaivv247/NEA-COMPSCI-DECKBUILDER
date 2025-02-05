@@ -1,0 +1,20 @@
+Name test data
+erroneous: flark magcian, 5698759, as
+boundary; sark magcian
+normal; dark magician
+
+fname test data
+erroneous; sdfhdficsv, 736473, lorem ipsum
+boundary ; fire, dark
+normal, dark magician
+
+id test data;
+erroneous ; loremipsum, 7423892, 384738212
+boundary; 469864149, 4698641
+normal; 46986414
+
+type test data;
+erroneous; loremipsum, 8734122
+boundary; monster,spell,trap
+normal; effect monster
+
