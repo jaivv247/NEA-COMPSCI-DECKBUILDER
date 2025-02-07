@@ -80,6 +80,7 @@ list_of_formats = ['TCG','OCG','GOAT']
 
 
 def card_parser(card_parameter , corresponding_variable):
+     card_parameter = card_parameter.lower()
      match card_parameter:#SWITCH CASE TO VALIDATE THE PARAMETERS AND CORRESPONDING VARIABLE
           case 'name':
                return(True)
@@ -126,7 +127,7 @@ def card_parser(card_parameter , corresponding_variable):
                     error('def')
           case 'level':
                if corresponding_variable.isdigit() == True:
-                    if int(corresponding_variable) > 0 and int(corresponding_variable) < 13:
+                    if int(corresponding_variable) >= 0 and int(corresponding_variable) <= 13:
                          return(True)
                          looper = 0
                     elif int(corresponding_variable) < 0 or int(corresponding_variable) > 13:
@@ -147,16 +148,14 @@ def card_parser(card_parameter , corresponding_variable):
                else:
                     error('attribute')
           case 'link':
-               if corresponding_variable.isdigit() == True:
-                    try:
-                         if int(corresponding_variable) < 0 and int(corresponding_variable) > 7:
-                              return(True)
-                              looper = 0
-     
-                    except:
-                         print('Link is not between 1 and 6 please try again')
+              if corresponding_variable.isdigit() == True:
+                    if int(corresponding_variable) > 0 and int(corresponding_variable) <=6:
+                         return(True)
+                         looper = 0
+                    elif int(corresponding_variable) < 0 or int(corresponding_variable) > 6:
+                         print('value is not in correct range')
                          error('general')
-               else:
+              else:
                     error('link')
           case 'linkmarker':
                if corresponding_variable.lower() in list_of_linkmarkers:
@@ -165,17 +164,15 @@ def card_parser(card_parameter , corresponding_variable):
                else:
                     error('linkmarker')
           case 'scale':
-               if corresponding_variable.isdigit() == True:
-                    try:
-                         if int(corresponding_variable) < -1 and int(corresponding_variable) > 14:
-                              return(True)
-                              looper = 0
-     
-                    except:
-                         print('Scale value is not between 0 and 13')
+                 if corresponding_variable.isdigit() == True:
+                    if int(corresponding_variable) >= 0 and int(corresponding_variable) <= 14:
+                         return(True)
+                         looper = 0
+                    elif int(corresponding_variable) < 0 or int(corresponding_variable) > 14:
+                         print('value is not in correct range')
                          error('general')
-               else:
-                    print('scale')
+                 else:
+                         error('scale')
           case 'cardset':
                     with open('Cardset_for_check.txt') as Type_check:
                          datafile = Type_check.readlines()
@@ -210,18 +207,18 @@ def card_parser(card_parameter , corresponding_variable):
                          if len_counter == length_of_file:
                               error('archetype')
           case 'banlist':
-               if  corresponding_variable.upper in list_of_formats:
+               if corresponding_variable.upper() in list_of_formats:
                     return(True)
                     looper = 0
                else:
                     error('banlist')
           case 'format':
-               if  corresponding_variable.upper in list_of_formats:
+               if  corresponding_variable.upper() in list_of_formats:
                     return(True)
                     looper = 0
                else:
                     error('format')
-     if card_parameter.lower() not in list_of_acceptable_params:
+     if card_parameter not in list_of_acceptable_params:
           print('Parameter not parasable')
           error('general')
                
