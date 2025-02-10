@@ -4,6 +4,7 @@ import requests
 import os
 from sys import argv
 looper_parse = 1
+mode = ''
 
 
 #import dearpygui.dearpygui as dpg
@@ -21,11 +22,19 @@ looper_parse = 1
 script_directory = os.path.dirname(os.path.abspath(argv[0])) #change file path to current file to ignore path to file, only needs to change path from file
 os.chdir(script_directory)
 
+#MODE CHOOSE CODE INTO DBE OR PARSE FOR TESTS AND SUCH
+def mode_maker():
+     counter = 1
+     while counter > 0 :
+        list_of_modes = ['search','dbe','dev']
+        mode = input('what mode are we in: ')
+        if mode not in list_of_modes:
+            print('incorrect mode')
+        else:
+            return mode
+        
 
 #USER CREATION AND LOGIN SYSTEM
-
-
-
 def read_accounts(): #reads the account file and splits the username and password of the user
      with open('Accounts_NEA.txt', 'r' ) as account_read:
           contents = account_read.readlines()
@@ -38,8 +47,7 @@ def read_accounts(): #reads the account file and splits the username and passwor
           return new_contents
 
 
-logins = read_logins()
-
+logins = read_accounts()
 
 def login(): #login function checks if username and password are in the program
      counter = 1
@@ -53,33 +61,40 @@ def login(): #login function checks if username and password are in the program
                if line[0] == ask_username and logged_in == False:
                     if line[1] == ask_password:
                          logged_in = True
-
           if logged_in == True:
                counter = 0
                print('Logged in successfully')
+               global mode
+               mode = mode_maker()
           else:
                print('Username/Password incorrect')
+
+def create_accounts():#reads the existing accounts and creates a new account based on that
+     with open ('Accounts_NEA.txt', 'a' ) as account_make:
+          counter = 1
+          while counter > 0:
+               create_username = str(input('Input a username: '))
+               create_password = str(input('Input a password: '))
+               
+               for line in logins:
+                    if line[0] == create_username:
+                         print('Username already exists please try again')
+                    else:
+                         account_make.write(f'{create_username}',f'{create_password}'+'\n')
+          login()
           
-
-
-
-
-#MODE CHOOSE CODE INTO DBE OR PARSE FOR TESTS AND SUCH
-
-
-def mode():
-     while counter > 0 :
-     counter = 1
-     list_of_modes = ['search','DBE','dev']
-     mode = input('what mode are we in')
-     if mode not in list_of_modes:
-          print('incorrect mode')
-     else:
-          counter = 0
-
-
-
-
+check = False
+while check == False :
+     entry = input('''Welcome to the program:
+                   click 1 to create an account
+                   click 2 to login
+                   :''')
+     if entry == '1':
+          create_accounts()
+          check = True
+     elif entry == '2':
+          login()
+          check = True
 
 def jprint(obj):#THIS FUNCTION ALLOWS FOR PRINTING OF THE REQUEST SENT INTO THE API
      text = json.dumps(obj, sort_keys= True, indent= 4)
@@ -318,6 +333,5 @@ while looper_parse > 0 and mode == 'search':
                     print('error')
      except:
           print('Error has occured in database parser')
-
 
 
