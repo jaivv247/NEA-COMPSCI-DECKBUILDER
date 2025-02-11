@@ -26,7 +26,7 @@ os.chdir(script_directory)
 def mode_maker():
      counter = 1
      while counter > 0 :
-        list_of_modes = ['search','dbe','dev']
+        list_of_modes = ['search','dbe','dev','stop']
         mode = input('what mode are we in: ')
         if mode not in list_of_modes:
             print('incorrect mode')
@@ -75,20 +75,20 @@ def create_accounts():#reads the existing accounts and creates a new account bas
           while counter > 0:
                create_username = str(input('Input a username: '))
                create_password = str(input('Input a password: '))
-               
+               create_accounts()
                for line in logins:
                     if line[0] == create_username:
                          print('Username already exists please try again')
                     else:
                          account_make.write(f'{create_username}',f'{create_password}'+'\n')
-          login()
+     login()
           
 check = False
 while check == False :
      entry = input('''Welcome to the program:
                    click 1 to create an account
                    click 2 to login
-                   :''')
+                   : ''')
      if entry == '1':
           create_accounts()
           check = True
@@ -310,19 +310,9 @@ def card_parser(card_parameter , corresponding_variable):
           print('Parameter not parasable')
           error('general')
                
-
-
-
-
-
 #DATABASE PARSE CALL CODE
-while looper_parse > 0 and mode == 'search':
-     card_parameter = input('what ygo api type thing are you searching for: ')
-     corresponding_variable = input('corresponding: ')                   
-          
-     try:
-          parse = card_parser(card_parameter,corresponding_variable)
-          if parse == True:
+def database_call():                 
+          try:
                r = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php',params={
                f'{card_parameter}' : f'{corresponding_variable}',})
 
@@ -331,7 +321,39 @@ while looper_parse > 0 and mode == 'search':
                     looper_parse = 0
                else:
                     print('error')
-     except:
-          print('Error has occured in database parser')
+          except:
+               print('Error has occured in database parser')
+
+          counter = 1
+          while counter > 0:
+               again = input('''Would you like to search again?
+               click 1 to search again 
+               click 2 to stop search
+               : ''')
+               global mode
+               if again == '1':
+                    mode ='search'
+               if again == '2':
+                    mode = 'stop'
+                    break
+               if again != '1' or again != '2':
+                    print('Incorrect repsonse')
+
+
+
+
+
+#actual search for cards
+while looper_parse > 0 and mode == 'search':
+     card_parameter = input('what ygo api type thing are you searching for: ')
+     corresponding_variable = input('corresponding: ')
+     parse = card_parser(card_parameter,corresponding_variable)
+     if parse == True:
+          database_call()
+
+
+
+
+
 
 
