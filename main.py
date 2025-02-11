@@ -75,12 +75,15 @@ def create_accounts():#reads the existing accounts and creates a new account bas
           while counter > 0:
                create_username = str(input('Input a username: '))
                create_password = str(input('Input a password: '))
-               create_accounts()
+
                for line in logins:
                     if line[0] == create_username:
                          print('Username already exists please try again')
+                         create_accounts()
                     else:
-                         account_make.write(f'{create_username}',f'{create_password}'+'\n')
+                         account_make.write(f'{create_username}'+ ',' + f'{create_password}'+'\n')
+                         counter = -1
+                         break
      login()
           
 check = False
@@ -332,12 +335,12 @@ def database_call():
                : ''')
                global mode
                if again == '1':
-                    mode ='search'
+                    return 1
                if again == '2':
                     mode = 'stop'
                     break
-               if again != '1' or again != '2':
-                    print('Incorrect repsonse')
+               else:
+                    print('incorrect response')
 
 
 
@@ -350,10 +353,3 @@ while looper_parse > 0 and mode == 'search':
      parse = card_parser(card_parameter,corresponding_variable)
      if parse == True:
           database_call()
-
-
-
-
-
-
-
