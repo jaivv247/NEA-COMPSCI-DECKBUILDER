@@ -5,19 +5,36 @@ import os
 from sys import argv
 looper_parse = 1
 mode = ''
+#ALL THE STRINGS TO CHECK VARIABLES AGAINST
+list_of_modes = ['search','dbe','dev','stop']
+list_of_races = ['aqua','beast','beast-warrior','creator-god','cyberse','dinosaur','divine-beast','dragon','fairy','fiend','fish','insect','machine','plant','psychic','pyro','reptile','rock','sea serpent','spellcaster','thunder','warrior','winged beast','wyrm','zombie','normal','field','equip','continuous','quick-play','ritual','normal','continuous','counter']
+list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist','format'] #LIST OF ACCEPTABLE PARAMETERS
+list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
+list_of_linkmarkers = ['top', 'bottom', 'left', 'right', 'bottom-left', 'bottom-right', 'top-left', 'top-right']
+list_of_formats = ['TCG','OCG','GOAT']
+import dearpygui.dearpygui as dpg
 
 
-#import dearpygui.dearpygui as dpg
+#GUI CODE
+
+
+
 #dpg.create_context()
-#dpg.create_viewport(title='Yu-gi-oh deck builder', width=600,height=300)
 
 #with dpg.window(label='Main menu'):
-     #dpg.add_text('Yugioh matrix')
-     #dpg.add_button(label='Enter')
+#     dpg.add_text('Yugioh matrix')
+#    dpg.add_button(label='Enter')
+
+#dpg.create_viewport(title='Yu-gi-oh deck builder', width=600,height=300)
 #dpg.setup_dearpygui()
 #dpg.show_viewpoint()
-
 #while dpg.is_dearpgui_running():
+
+
+
+
+
+
 
 script_directory = os.path.dirname(os.path.abspath(argv[0])) #change file path to current file to ignore path to file, only needs to change path from file
 os.chdir(script_directory)
@@ -26,13 +43,12 @@ os.chdir(script_directory)
 def mode_maker():
      counter = 1
      while counter > 0 :
-        list_of_modes = ['search','dbe','dev','stop']
-        mode = input('what mode are we in: ')
-        if mode not in list_of_modes:
-            print('incorrect mode')
-        else:
-            return mode
-        
+          mode = input('what mode are we in: ')
+          if mode not in list_of_modes:
+               print('incorrect mode')
+          else:
+               return mode
+     
 
 #USER CREATION AND LOGIN SYSTEM
 def read_accounts(): #reads the account file and splits the username and password of the user
@@ -42,12 +58,11 @@ def read_accounts(): #reads the account file and splits the username and passwor
 
           for line in contents:
                fields = line.split(',')
+               #print(fields)
                fields[1]=fields[1].rstrip()
                new_contents.append(fields)
           return new_contents
 
-
-logins = read_accounts()
 
 def login(): #login function checks if username and password are in the program
      counter = 1
@@ -56,8 +71,10 @@ def login(): #login function checks if username and password are in the program
           ask_password = str(input('Password: '))
 
           logged_in = False
-
+          logins = read_accounts()
+          #print(logins)
           for line in logins:
+               #print(line[0])
                if line[0] == ask_username and logged_in == False:
                     if line[1] == ask_password:
                          logged_in = True
@@ -70,28 +87,32 @@ def login(): #login function checks if username and password are in the program
                print('Username/Password incorrect')
 
 def create_accounts():#reads the existing accounts and creates a new account based on that
-     with open ('Accounts_NEA.txt', 'a' ) as account_make:
-          counter = 1
-          while counter > 0:
-               create_username = str(input('Input a username: '))
-               create_password = str(input('Input a password: '))
+     counter = 1
+     while counter > 0:
+        create_username = str(input('Input a username: '))
+        create_password = str(input('Input a password: '))
 
-               for line in logins:
-                    if line[0] == create_username:
-                         print('Username already exists please try again')
-                         create_accounts()
-                    else:
-                         account_make.write(f'{create_username}'+ ',' + f'{create_password}'+'\n')
-                         counter = -1
-                         break
+        username_exists = False
+        logins = read_accounts()
+        for line in logins:
+            if line[0] == create_username:
+                username_exists = True
+                break
+        if username_exists:
+            print('Username already exists, please choose a different one')
+        else:
+            with open('Accounts_NEA.txt', 'a') as account_make:
+                account_make.write(f'{create_username},{create_password}\n')
+            print('Account created successfully')
+            counter = -1
      login()
           
 check = False
 while check == False :
      entry = input('''Welcome to the program:
-                   click 1 to create an account
-                   click 2 to login
-                   : ''')
+               click 1 to create an account
+               click 2 to login
+               : ''')
      if entry == '1':
           create_accounts()
           check = True
@@ -194,14 +215,14 @@ def card_parser(card_parameter , corresponding_variable):
                     while len_counter < length_of_file: #whilst we havent looked at the whole file
                          #print('test')
                          for line in datafile: # for each line in the file
-                               if corresponding_variable.upper() in line: # we check if the corresponding variable is in the list
-                                     Type_check.close()
-                                     looper_parse = 0
-                                     len_counter = length_of_file +1# does this to stop the while loop whilst also not flag an error
-                                     #print('test')
-                                     return(True)
-                               else:
-                                     len_counter +=1 # increments if the current line is not the same as our variable
+                              if corresponding_variable.upper() in line: # we check if the corresponding variable is in the list
+                                   Type_check.close()
+                                   looper_parse = 0
+                                   len_counter = length_of_file +1# does this to stop the while loop whilst also not flag an error
+                                   #print('test')
+                                   return(True)
+                              else:
+                                   len_counter +=1 # increments if the current line is not the same as our variable
                     if len_counter == length_of_file: # if we have checked every line and we still havent gotten our variable then theres been an error
                          error('type')
           case 'atk':
@@ -239,15 +260,15 @@ def card_parser(card_parameter , corresponding_variable):
                else:
                     error('attribute')
           case 'link':
-              if corresponding_variable.isdigit() == True:
-                    if int(corresponding_variable) > 0 and int(corresponding_variable) <=6:
-                         return(True)
-                         looper_parse = 0
-                    elif int(corresponding_variable) < 0 or int(corresponding_variable) > 6:
-                         print('value is not in correct range')
-                         error('general')
-              else:
-                    error('link')
+               if corresponding_variable.isdigit() == True:
+                         if int(corresponding_variable) > 0 and int(corresponding_variable) <=6:
+                              return(True)
+                              looper_parse = 0
+                         elif int(corresponding_variable) < 0 or int(corresponding_variable) > 6:
+                              print('value is not in correct range')
+                              error('general')
+               else:
+                         error('link')
           case 'linkmarker':
                if corresponding_variable.lower() in list_of_linkmarkers:
                     return(True)
@@ -255,14 +276,14 @@ def card_parser(card_parameter , corresponding_variable):
                else:
                     error('linkmarker')
           case 'scale':
-                 if corresponding_variable.isdigit() == True:
+               if corresponding_variable.isdigit() == True:
                     if int(corresponding_variable) >= 0 and int(corresponding_variable) <= 14:
                          return(True)
                          looper_parse = 0
                     elif int(corresponding_variable) < 0 or int(corresponding_variable) > 14:
                          print('value is not in correct range')
                          error('general')
-                 else:
+               else:
                          error('scale')
           case 'cardset':
                     with open('Cardset_for_check.txt') as Type_check:
@@ -271,14 +292,14 @@ def card_parser(card_parameter , corresponding_variable):
                          len_counter = 0
                     while len_counter < length_of_file:
                          for line in datafile:
-                               if corresponding_variable.upper() in line:
-                                     Type_check.close()
+                              if corresponding_variable.upper() in line:
+                                   Type_check.close()
 
-                                     looper_parse = 0
-                                     len_counter = length_of_file +1
-                                     return(True)
-                               else:
-                                     len_counter +=1
+                                   looper_parse = 0
+                                   len_counter = length_of_file +1
+                                   return(True)
+                              else:
+                                   len_counter +=1
                     if len_counter == length_of_file:
                          error('cardset')
           case 'archetype':
@@ -342,6 +363,8 @@ def database_call():
                else:
                     print('incorrect response')
 
+while mode == 'stop':
+     break
 
 
 
@@ -353,3 +376,5 @@ while looper_parse > 0 and mode == 'search':
      parse = card_parser(card_parameter,corresponding_variable)
      if parse == True:
           database_call()
+
+#dpg.destroy_context()
