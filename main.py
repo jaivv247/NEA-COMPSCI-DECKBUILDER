@@ -3,6 +3,7 @@ import json
 import requests
 import os
 from sys import argv
+import dearpygui.dearpygui as dpg
 looper_parse = 1
 mode = ''
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
@@ -12,29 +13,6 @@ list_of_acceptable_params = ['name','fname','id','type','atk','def','level','rac
 list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
 list_of_linkmarkers = ['top', 'bottom', 'left', 'right', 'bottom-left', 'bottom-right', 'top-left', 'top-right']
 list_of_formats = ['TCG','OCG','GOAT']
-import dearpygui.dearpygui as dpg
-
-
-#GUI CODE
-
-
-
-#dpg.create_context()
-
-#with dpg.window(label='Main menu'):
-#     dpg.add_text('Yugioh matrix')
-#    dpg.add_button(label='Enter')
-
-#dpg.create_viewport(title='Yu-gi-oh deck builder', width=600,height=300)
-#dpg.setup_dearpygui()
-#dpg.show_viewpoint()
-#while dpg.is_dearpgui_running():
-
-
-
-
-
-
 
 script_directory = os.path.dirname(os.path.abspath(argv[0])) #change file path to current file to ignore path to file, only needs to change path from file
 os.chdir(script_directory)
@@ -106,19 +84,20 @@ def create_accounts():#reads the existing accounts and creates a new account bas
             print('Account created successfully')
             counter = -1
      login()
-          
-check = False
-while check == False :
-     entry = input('''Welcome to the program:
-               click 1 to create an account
-               click 2 to login
-               : ''')
-     if entry == '1':
-          create_accounts()
-          check = True
-     elif entry == '2':
-          login()
-          check = True
+
+def enter():     
+     check = False
+     while check == False :
+          entry = input('''Welcome to the program:
+                    click 1 to create an account
+                    click 2 to login
+                    : ''')
+          if entry == '1':
+               create_accounts()
+               check = True
+          elif entry == '2':
+               login()
+               check = True
 
 def jprint(obj):#THIS FUNCTION ALLOWS FOR PRINTING OF THE REQUEST SENT INTO THE API
      text = json.dumps(obj, sort_keys= True, indent= 4)
@@ -377,4 +356,57 @@ while looper_parse > 0 and mode == 'search':
      if parse == True:
           database_call()
 
-#dpg.destroy_context()
+
+
+#GUI CODE
+
+dpg.create_context()
+
+
+
+with dpg.window(label="Main page",width=1920,height=1080 , tag='Primary Window'):
+    dpg.add_text("Welcome to the Yugio duel matrix")
+    
+    def enter_button(sender,app_data):
+        with dpg.window(label='Entry page',width=)
+
+
+
+    input_field = dpg.add_input_text(label='enter something: ',default_value='type soemthing')
+
+    dpg.add_button(label= 'enter', callback= on_button_click)
+
+
+dpg.create_viewport(title = 'Yugioh duel matrix', width=400 , height= 300)
+dpg.set_primary_window('Primary Window', True)
+dpg.setup_dearpygui()
+dpg.show_viewport()
+dpg.start_dearpygui()
+
+
+
+def enter():     
+     check = False
+     while check == False :
+          entry = input('''Welcome to the program:
+                    click 1 to create an account
+                    click 2 to login
+                    : ''')
+          if entry == '1':
+               create_accounts()
+               check = True
+          elif entry == '2':
+               login()
+               check = True
+
+
+
+
+
+
+
+
+
+
+
+dpg.destroy_context()
