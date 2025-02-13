@@ -41,8 +41,8 @@ def read_accounts(): #reads the account file and splits the username and passwor
                new_contents.append(fields)
           return new_contents
 
-
-def login(): #login function checks if username and password are in the program
+#login function checks if username and password are in the program
+def login(sender,data):
      counter = 1
      while counter > 0:
           ask_username = str(input('Username: '))
@@ -64,7 +64,8 @@ def login(): #login function checks if username and password are in the program
           else:
                print('Username/Password incorrect')
 
-def create_accounts():#reads the existing accounts and creates a new account based on that
+#reads the existing accounts and creates a new account based on that
+def create_accounts(sender,data):
      counter = 1
      while counter > 0:
         create_username = str(input('Input a username: '))
@@ -362,19 +363,18 @@ while looper_parse > 0 and mode == 'search':
 
 dpg.create_context()
 
-
-
 with dpg.window(label="Main page",width=1920,height=1080 , tag='Primary Window'):
-    dpg.add_text("Welcome to the Yugio duel matrix")
+    dpg.add_text("Welcome to the Yugioh duel matrix")
     
     def enter_button(sender,app_data):
-        with dpg.window(label='Entry page',width=)
+        with dpg.window(label='Entry page',width=1920,height=1080):
+
 
 
 
     input_field = dpg.add_input_text(label='enter something: ',default_value='type soemthing')
 
-    dpg.add_button(label= 'enter', callback= on_button_click)
+    dpg.add_button(label= 'Enter', callback=enter_button)
 
 
 dpg.create_viewport(title = 'Yugioh duel matrix', width=400 , height= 300)
@@ -386,25 +386,24 @@ dpg.start_dearpygui()
 
 
 def enter():     
-     check = False
-     while check == False :
-          entry = input('''Welcome to the program:
+          dpg.add_text('Would you like to sign up or login?)
+          dpg.add_button('Sign up',callback=login)
+
+
+
+
+
+
+('''Welcome to the program:
                     click 1 to create an account
                     click 2 to login
                     : ''')
-          if entry == '1':
+if entry == '1':
                create_accounts()
                check = True
           elif entry == '2':
                login()
                check = True
-
-
-
-
-
-
-
 
 
 
