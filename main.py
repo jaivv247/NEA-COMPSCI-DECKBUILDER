@@ -4,6 +4,8 @@ import requests
 import os
 from sys import argv
 import dearpygui.dearpygui as dpg
+import time
+
 looper_parse = 1
 mode = ''
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
@@ -42,12 +44,13 @@ def read_accounts(): #reads the account file and splits the username and passwor
           return new_contents
 
 #login function checks if username and password are in the program
-def login(sender,data):
+def login():#(sender,data):
      counter = 1
      while counter > 0:
-          ask_username = str(input('Username: '))
-          ask_password = str(input('Password: '))
-
+          #ask_username = dpg.add_input_text(label='Username: ',default_value='Type here')
+          #ask_password = dpg.add_input_text(label='Password: ',default_value='Type here')
+          ask_username = str(input('username: '))
+          ask_password = str(input('password: '))
           logged_in = False
           logins = read_accounts()
           #print(logins)
@@ -58,14 +61,16 @@ def login(sender,data):
                          logged_in = True
           if logged_in == True:
                counter = 0
+               #dpg.add_text('Logged in successfully')
                print('Logged in successfully')
                global mode
                mode = mode_maker()
           else:
+               #dpg.add_text('Username/Password incorrect')
                print('Username/Password incorrect')
 
 #reads the existing accounts and creates a new account based on that
-def create_accounts(sender,data):
+def create_accounts():#(sender,data):
      counter = 1
      while counter > 0:
         create_username = str(input('Input a username: '))
@@ -86,19 +91,21 @@ def create_accounts(sender,data):
             counter = -1
      login()
 
-def enter():     
-     check = False
-     while check == False :
-          entry = input('''Welcome to the program:
-                    click 1 to create an account
-                    click 2 to login
-                    : ''')
-          if entry == '1':
-               create_accounts()
-               check = True
-          elif entry == '2':
-               login()
-               check = True
+
+#terminal side UI for test
+
+# check = False
+# while check == False :
+#      entry = input('''Welcome to the program:
+#                click 1 to create an account
+#                click 2 to login
+#                : ''')
+#      if entry == '1':
+#           create_accounts()
+#           check = True
+#      elif entry == '2':
+#           login()
+#           check = True
 
 def jprint(obj):#THIS FUNCTION ALLOWS FOR PRINTING OF THE REQUEST SENT INTO THE API
      text = json.dumps(obj, sort_keys= True, indent= 4)
@@ -109,55 +116,38 @@ def error(card_parameter): #this funtion is the mapped to each error and runs wh
      match card_parameter:
                case 'general':
                     print('Please try again')
-                    looper_parse+=1
                case 'name':
                     print('Name is not correct please try again')
-                    looper_parse_parse +=1
                case 'fname':
                     print('fname is not correct please try again')
-                    looper_parse +=1
                case 'id':
                     print('id is incorrect format please try again')
-                    looper_parse +=1
                case 'type':
                     print('corresponding variable does not match, use no capitals.')
-                    looper_parse +=1
                case 'atk':
                     print('Attack value not correct format')
-                    looper_parse +=1
                case 'def':
                     print('Defense value not correct format')
-                    looper_parse +=1
                case 'level':
                     print('level value is not a number please try again')
-                    looper_parse +=1
                case 'race':
                     print('Incorrect card race please try again')
-                    looper_parse +=1
                case 'attribute':
                     print('Attribute is not real please try again')
-                    looper_parse +=1
                case 'link':
                     print('link value is not a number please try again')
-                    looper_parse +=1
                case 'linkmarker':
                     print('Incorrect format please try again (make sure format is in word form and lowercase with dashes)')
-                    looper_parse +=1
                case 'scale':
                     print('scale value is not a number please try again')
-                    looper_parse +=1
                case 'cardset':
                     print('cardset not in set, please try again')
-                    looper_parse +=1
                case 'archetype':
                     print('Archetype not in set, please try again')
-                    looper_parse +=1
                case 'banlist':
                     print('The banlist for this format does not exist,try again')
-                    looper_parse +=1
                case 'format':
                     print('This format does not exist,try again')
-                    looper_parse +=1
                
 
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
@@ -173,7 +163,8 @@ list_of_formats = ['TCG','OCG','GOAT']
 looper_parse = 1
 def card_parser(card_parameter , corresponding_variable):
      card_parameter = card_parameter.lower()
-     match card_parameter:#SWITCH CASE TO VALIDATE THE PARAMETERS AND CORRESPONDING VARIABLE
+     #SWITCH CASE TO VALIDATE THE PARAMETERS AND CORRESPONDING VARIABLES
+     match card_parameter:
           case 'name':
                return(True)
                looper_parse = 0
@@ -318,7 +309,7 @@ def card_parser(card_parameter , corresponding_variable):
 def database_call():                 
           try:
                r = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php',params={
-               f'{card_parameter}' : f'{corresponding_variable}',})
+               f'{card_parameter}' : f'{corresponding_variable}'})
 
                if r.status_code == 200:
                     jprint(r.json())
@@ -342,11 +333,11 @@ def database_call():
                     break
                else:
                     print('incorrect response')
+          
+          return r
 
 while mode == 'stop':
      break
-
-
 
 
 #actual search for cards
@@ -356,56 +347,46 @@ while looper_parse > 0 and mode == 'search':
      parse = card_parser(card_parameter,corresponding_variable)
      if parse == True:
           database_call()
+     
+
+#GUI set up code
 
 
 
-#GUI CODE
 
 dpg.create_context()
-
-with dpg.window(label="Main page",width=1920,height=1080 , tag='Primary Window'):
-    dpg.add_text("Welcome to the Yugioh duel matrix")
-    
-    def enter_button(sender,app_data):
-        with dpg.window(label='Entry page',width=1920,height=1080):
-
-
-
-
-    input_field = dpg.add_input_text(label='enter something: ',default_value='type soemthing')
-
-    dpg.add_button(label= 'Enter', callback=enter_button)
-
-
-dpg.create_viewport(title = 'Yugioh duel matrix', width=400 , height= 300)
-dpg.set_primary_window('Primary Window', True)
+dpg.configure_app(docking=True, docking_space=True, load_init_file="custom_layout.ini") # must be called before create_viewport
+dpg.create_viewport(title='Yugioh duel matrix',width=1920,height=1080)
 dpg.setup_dearpygui()
+
+# generate IDs - the IDs are used by the init file, they must be the
+#                same between sessions
+left_window = dpg.generate_uuid()
+right_window = dpg.generate_uuid()
+top_window = dpg.generate_uuid()
+bottom_window = dpg.generate_uuid()
+center_window = dpg.generate_uuid()
+
+dpg.add_window(label="Left", tag=left_window,show=True)
+dpg.add_window(label="Right", tag=right_window,show=True)
+dpg.add_window(label="Top", tag=top_window,show=True)
+dpg.add_window(label="Bottom", tag=bottom_window,show=True)
+dpg.add_window(label="Center", tag=center_window,show=True)
+
+
+
+def show_window(Param):
+     dpg.configure_item(Param,show=True)
+
+
+# show_window('Top')
+
+
+
+
+# main loop
 dpg.show_viewport()
-dpg.start_dearpygui()
-
-
-
-def enter():     
-          dpg.add_text('Would you like to sign up or login?)
-          dpg.add_button('Sign up',callback=login)
-
-
-
-
-
-
-('''Welcome to the program:
-                    click 1 to create an account
-                    click 2 to login
-                    : ''')
-if entry == '1':
-               create_accounts()
-               check = True
-          elif entry == '2':
-               login()
-               check = True
-
-
-
+while dpg.is_dearpygui_running():
+    dpg.render_dearpygui_frame()  
 
 dpg.destroy_context()
