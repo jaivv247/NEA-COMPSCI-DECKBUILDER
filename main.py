@@ -366,20 +366,40 @@ right_window = dpg.generate_uuid()
 top_window = dpg.generate_uuid()
 bottom_window = dpg.generate_uuid()
 center_window = dpg.generate_uuid()
+param =''
+
+
+
+
+def hide_window(param):
+     dpg.configure_item(param,show=True)
+
+def show_window(param):
+     dpg.configure_item(param,show=True)
+
+
+def window_selection(sender,data):
+     print(dpg.get_value('select window'))
+     param= dpg.get_value('select window')
+     hide_window(dpg.get_value('select window'))
+     time.sleep(5)
+     show_window(dpg.get_value('select window'))
+     
+
+
 
 dpg.add_window(label="Left", tag=left_window,show=True)
 dpg.add_window(label="Right", tag=right_window,show=True)
 dpg.add_window(label="Top", tag=top_window,show=True)
 dpg.add_window(label="Bottom", tag=bottom_window,show=True)
-dpg.add_window(label="Center", tag=center_window,show=True)
+with dpg.window(label="Center", tag=center_window,show=True):
+     dpg.add_input_text(label='Select window',on_enter=True,callback=window_selection,tag='select window')
+     dpg.add_button(label='Click',callback=window_selection)
+     
 
 
 
-def show_window(Param):
-     dpg.configure_item(Param,show=True)
 
-
-# show_window('Top')
 
 
 
