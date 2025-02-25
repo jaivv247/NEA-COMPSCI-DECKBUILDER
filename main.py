@@ -94,18 +94,18 @@ def create_accounts():#(sender,data):
 
 #terminal side UI for test
 
-# check = False
-# while check == False :
-#      entry = input('''Welcome to the program:
-#                click 1 to create an account
-#                click 2 to login
-#                : ''')
-#      if entry == '1':
-#           create_accounts()
-#           check = True
-#      elif entry == '2':
-#           login()
-#           check = True
+check = False
+while check == False :
+     entry = input('''Welcome to the program:
+               click 1 to create an account
+               click 2 to login
+               : ''')
+     if entry == '1':
+          create_accounts()
+          check = True
+     elif entry == '2':
+          login()
+          check = True
 
 def jprint(obj):#THIS FUNCTION ALLOWS FOR PRINTING OF THE REQUEST SENT INTO THE API
      text = json.dumps(obj, sort_keys= True, indent= 4)
@@ -305,6 +305,14 @@ def card_parser(card_parameter , corresponding_variable):
           print('Parameter not parasable')
           error('general')
                
+
+
+def saveToDecklist():
+     #json manipulation
+     # adds to global deck
+
+
+
 #DATABASE PARSE CALL CODE
 def database_call():                 
           try:
@@ -330,11 +338,10 @@ def database_call():
                     return 1
                if again == '2':
                     mode = 'stop'
-                    break
+                    return r
                else:
                     print('incorrect response')
-          
-          return r
+                    
 
 while mode == 'stop':
      break
@@ -346,7 +353,7 @@ while looper_parse > 0 and mode == 'search':
      corresponding_variable = input('corresponding: ')
      parse = card_parser(card_parameter,corresponding_variable)
      if parse == True:
-          database_call()
+          var = database_call()
      
 
 #GUI set up code
@@ -354,59 +361,60 @@ while looper_parse > 0 and mode == 'search':
 
 
 
-dpg.create_context()
-dpg.configure_app(docking=True, docking_space=True, load_init_file="custom_layout.ini") # must be called before create_viewport
-dpg.create_viewport(title='Yugioh duel matrix',width=1920,height=1080)
-dpg.setup_dearpygui()
+# dpg.create_context()
+# # dpg.configure_app(docking=True, docking_space=True, load_init_file="custom_layout.ini") # must be called before create_viewport
+# dpg.create_viewport(title='Yugioh duel matrix',width=1920,height=1080)
+# dpg.setup_dearpygui()
 
-# generate IDs - the IDs are used by the init file, they must be the
-#                same between sessions
-left_window = dpg.generate_uuid()
-right_window = dpg.generate_uuid()
-top_window = dpg.generate_uuid()
-bottom_window = dpg.generate_uuid()
-center_window = dpg.generate_uuid()
-param =''
-
-
+# # generate IDs - the IDs are used by the init file, they must be the
+# #                same between sessions
+# left_window = dpg.generate_uuid()
+# right_window = dpg.generate_uuid()
+# top_window = dpg.generate_uuid()
+# bottom_window = dpg.generate_uuid()
+# center_window = dpg.generate_uuid()
+# param =''
 
 
-def hide_window(param):
-     dpg.configure_item(param,show=True)
-
-def show_window(param):
-     dpg.configure_item(param,show=True)
 
 
-def window_selection(sender,data):
-     print(dpg.get_value('select window'))
-     param= dpg.get_value('select window')
-     hide_window(dpg.get_value('select window'))
-     time.sleep(5)
-     show_window(dpg.get_value('select window'))
+# def hide_window(param):
+#      dpg.configure_item(param,show=True)
+
+# def show_window(param):
+#      dpg.configure_item(param,show=True)
+
+
+# def window_selection(sender,data):
+#      print(dpg.get_value('select window'))
+#      param= dpg.get_value('select window')
+#      hide_window(dpg.get_value('select window'))
+#      time.sleep(5)
+#      show_window(dpg.get_value('select window'))
      
 
 
 
-dpg.add_window(label="Left", tag=left_window,show=True)
-dpg.add_window(label="Right", tag=right_window,show=True)
-dpg.add_window(label="Top", tag=top_window,show=True)
-dpg.add_window(label="Bottom", tag=bottom_window,show=True)
-with dpg.window(label="Center", tag=center_window,show=True):
-     dpg.add_input_text(label='Select window',on_enter=True,callback=window_selection,tag='select window')
-     dpg.add_button(label='Click',callback=window_selection)
+# with dpg.window(label="Left", tag=left_window,show=True,no_move=True):
+#      dpg.set_item_pos('left_window',pos=(1000,0))
+# dpg.add_window(label="Right", tag=right_window,show=True,no_move=True)
+# dpg.add_window(label="Top", tag=top_window,show=True,no_move=True)
+# dpg.add_window(label="Bottom", tag=bottom_window,show=True,no_move=True)
+# with dpg.window(label="Center", tag=center_window,show=True,no_move=True):
+#      dpg.add_input_text(label='Select window',on_enter=True,callback=window_selection,tag='select window')
+#      dpg.add_button(label='Click',callback=window_selection)
      
 
 
 
+# dpg.set_primary_window('center_window',True)
 
 
 
 
+# # main loop
+# dpg.show_viewport()
+# while dpg.is_dearpygui_running():
+#     dpg.render_dearpygui_frame()  
 
-# main loop
-dpg.show_viewport()
-while dpg.is_dearpygui_running():
-    dpg.render_dearpygui_frame()  
-
-dpg.destroy_context()
+# dpg.destroy_context()
