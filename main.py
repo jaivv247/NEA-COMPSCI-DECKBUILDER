@@ -16,6 +16,7 @@ list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
 list_of_linkmarkers = ['top', 'bottom', 'left', 'right', 'bottom-left', 'bottom-right', 'top-left', 'top-right']
 list_of_formats = ['TCG','OCG','GOAT']
 
+
 script_directory = os.path.dirname(os.path.abspath(argv[0])) #change file path to current file to ignore path to file, only needs to change path from file
 os.chdir(script_directory)
 
@@ -64,7 +65,7 @@ def login():#(sender,data):
                #dpg.add_text('Logged in successfully')
                print('Logged in successfully')
                global mode
-               mode = mode_maker()
+               mode = 'dbe'
           else:
                #dpg.add_text('Username/Password incorrect')
                print('Username/Password incorrect')
@@ -307,9 +308,9 @@ def card_parser(card_parameter , corresponding_variable):
                
 
 
-def saveToDecklist():
-     #json manipulation
-     # adds to global deck
+# def saveToDecklist():
+#      #json manipulation
+#      # adds to global deck
 
 
 
@@ -331,14 +332,18 @@ def database_call():
           while counter > 0:
                again = input('''Would you like to search again?
                click 1 to search again 
-               click 2 to stop search
+               click 2 to begin deck building
+               click 3 to stop
                : ''')
                global mode
                if again == '1':
                     return 1
                if again == '2':
-                    mode = 'stop'
+                    mode = 'dbe'
                     return r
+               if again=='3':
+                    mode='stop'
+                    break
                else:
                     print('incorrect response')
                     
@@ -347,14 +352,41 @@ while mode == 'stop':
      break
 
 
+
+
+
+#Deck building environement
+def search_func(search):
+     search_dictionary = search.json()
+
+
+
+
+while mode == 'dbe':
+     
+
+
 #actual search for cards
 while looper_parse > 0 and mode == 'search':
      card_parameter = input('what ygo api type thing are you searching for: ')
      corresponding_variable = input('corresponding: ')
      parse = card_parser(card_parameter,corresponding_variable)
      if parse == True:
-          var = database_call()
-     
+          global search
+          search = database_call()
+          search_func(search)
+
+
+
+
+
+
+
+
+
+
+
+
 
 #GUI set up code
 
