@@ -390,9 +390,6 @@ while looper_parse > 0 and mode == 'search':
 
 #GUI set up code
 
-
-
-
 # dpg.create_context()
 # # dpg.configure_app(docking=True, docking_space=True, load_init_file="custom_layout.ini") # must be called before create_viewport
 # dpg.create_viewport(title='Yugioh duel matrix',width=1920,height=1080)
