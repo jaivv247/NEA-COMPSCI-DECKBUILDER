@@ -22,6 +22,7 @@ os.chdir(script_directory)
 
 #MODE CHOOSE CODE INTO DBE OR PARSE FOR TESTS AND SUCH
 def mode_maker():
+     global mode
      counter = 1
      while counter > 0 :
           mode = input('what mode are we in: ')
@@ -64,8 +65,7 @@ def login():#(sender,data):
                counter = 0
                #dpg.add_text('Logged in successfully')
                print('Logged in successfully')
-               global mode
-               mode = 'dbe'
+               mode_maker()
           else:
                #dpg.add_text('Username/Password incorrect')
                print('Username/Password incorrect')
@@ -108,9 +108,17 @@ while check == False :
           login()
           check = True
 
-def jprint(obj):#THIS FUNCTION ALLOWS FOR PRINTING OF THE REQUEST SENT INTO THE API
+#THESE FUNCTIONS ALLOW FOR PRINTING OF THE REQUEST SENT INTO THE API
+def j_pretty_print(obj):
      text = json.dumps(obj, sort_keys= True, indent= 4)
      print(text)
+     return(text)
+def j_compact_print(obj):
+     text = json.dumps(obj,separators=(',',':'))
+     return text
+
+
+
 
 def error(card_parameter): #this funtion is the mapped to each error and runs whenever an error occurs for the card parameters
      print('Error has occured')
@@ -308,10 +316,6 @@ def card_parser(card_parameter , corresponding_variable):
                
 
 
-# def saveToDecklist():
-#      #json manipulation
-#      # adds to global deck
-
 
 
 #DATABASE PARSE CALL CODE
@@ -321,7 +325,7 @@ def database_call():
                f'{card_parameter}' : f'{corresponding_variable}'})
 
                if r.status_code == 200:
-                    jprint(r.json())
+                    j_pretty_print(r.json())
                     looper_parse = 0
                else:
                     print('error')
@@ -341,8 +345,8 @@ def database_call():
                if again == '2':
                     mode = 'dbe'
                     return r
-               if again=='3':
-                    mode='stop'
+               if again == '3':
+                    mode ='stop'
                     break
                else:
                     print('incorrect response')
@@ -355,14 +359,19 @@ while mode == 'stop':
 
 
 
-#Deck building environement
+#Deck building environment
 def search_func(search):
-     search_dictionary = search.json()
+     search = j_compact_print(search.json())
+     with open('search.txt','w') as f:
+          f.write(search)
 
-
+     #search_dictionary = search.json()
 
 
 while mode == 'dbe':
+     print('Mode was changed')
+
+
      
 
 
