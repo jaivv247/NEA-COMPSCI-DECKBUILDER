@@ -112,7 +112,7 @@ while check == False :
 def j_pretty_print(obj):
      text = json.dumps(obj, sort_keys= True, indent= 4)
      print(text)
-     return(text)
+     return text
 def j_compact_print(obj):
      text = json.dumps(obj,separators=(',',':'))
      return text
@@ -327,52 +327,15 @@ def database_call():
                if r.status_code == 200:
                     j_pretty_print(r.json())
                     looper_parse = 0
+                    return r
                else:
                     print('error')
           except:
                print('Error has occured in database parser')
-
-          counter = 1
-          while counter > 0:
-               again = input('''Would you like to search again?
-               click 1 to search again 
-               click 2 to begin deck building
-               click 3 to stop
-               : ''')
-               global mode
-               if again == '1':
-                    return 1
-               if again == '2':
-                    mode = 'dbe'
-                    return r
-               if again == '3':
-                    mode ='stop'
-                    break
-               else:
-                    print('incorrect response')
-                    
+          
 
 while mode == 'stop':
      break
-
-
-
-
-
-#Deck building environment
-def search_func(search):
-     search = j_compact_print(search.json())
-     with open('search.txt','w') as f:
-          f.write(search)
-
-     #search_dictionary = search.json()
-
-
-while mode == 'dbe':
-     print('Mode was changed')
-
-
-     
 
 
 #actual search for cards
@@ -381,26 +344,64 @@ while looper_parse > 0 and mode == 'search':
      corresponding_variable = input('corresponding: ')
      parse = card_parser(card_parameter,corresponding_variable)
      if parse == True:
-          global search
-          search = database_call()
-          search_func(search)
+          global call_return
+          call_return = database_call()
+          counter = 1
+          while counter > 0:
+               again = input('''Would you like to search again?
+               click 1 to search again 
+               click 2 to begin deck building
+               click 3 to stop
+               : ''')
+
+               if again == '1':
+                    mode = 'search'
+                    counter = 0
+               elif again == '2':
+                    mode = 'dbe'
+                    counter = 0
+               elif again == '3':
+                    mode ='stop'
+                    counter = 0
+               else:
+                    print('incorrect response')
+
+
+#Deck building environment
+def search_func(search):
+     search = j_compact_print(search.json())
+     user_search_info = search.fromkeys(id,name,typeline,type,)
+
+
+
+
+     # with open('search.txt','w') as f:
+     #      f.write(search)
+
+
+     #search_dictionary = search.json()
+
+
+while mode == 'dbe':
+     #print('Mode was changed')
+     search_func(call_return)
+     mode = 'stop'
+
+
+
+
+
+          
 
 
 
 
 
 
-
-
-
-
-
-
-
-#GUI set up code
+# ##GUI set up code
 
 # dpg.create_context()
-# # dpg.configure_app(docking=True, docking_space=True, load_init_file="custom_layout.ini") # must be called before create_viewport
+# dpg.configure_app(docking=True, docking_space=True, load_init_file="custom_layout.ini") # must be called before create_viewport
 # dpg.create_viewport(title='Yugioh duel matrix',width=1920,height=1080)
 # dpg.setup_dearpygui()
 
@@ -433,8 +434,8 @@ while looper_parse > 0 and mode == 'search':
 
 
 
-# with dpg.window(label="Left", tag=left_window,show=True,no_move=True):
-#      dpg.set_item_pos('left_window',pos=(1000,0))
+# dpg.add_window(label="Left", tag=left_window,show=True,no_move=True)
+#      #dpg.set_item_pos('left_window',pos=(1000,0))
 # dpg.add_window(label="Right", tag=right_window,show=True,no_move=True)
 # dpg.add_window(label="Top", tag=top_window,show=True,no_move=True)
 # dpg.add_window(label="Bottom", tag=bottom_window,show=True,no_move=True)
@@ -445,7 +446,7 @@ while looper_parse > 0 and mode == 'search':
 
 
 
-# dpg.set_primary_window('center_window',True)
+# #dpg.set_primary_window('center_window',True)
 
 
 
