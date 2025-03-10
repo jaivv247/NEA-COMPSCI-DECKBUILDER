@@ -370,8 +370,21 @@ while looper_parse > 0 and mode == 'search':
 #Deck building environment
 def search_func(search):
      search = j_compact_print(search.json())
-     user_search_info = search.fromkeys(id,name,typeline,type,)
+     search = json.loads(search)
+     print(str(search))
+     # Using dict()
+     # Extracting specific keys from dictionary
+     
 
+     keys_to_extract = ['id','name','typeline','humanReadableCardType','type','desc','atk','def','level','attribute','archetype','race']
+     res = dict(filter(lambda item: item[0] in keys_to_extract, search.items()))
+
+
+
+
+
+     #user_search_info = dict((k, search[k]) for k in ['id','name','typeline','humanReadableCardType','type','desc','atk','def','level','attribute','archetype','race'] if k in search)
+     print(str(res))
 
 
 
