@@ -6,12 +6,14 @@ from sys import argv
 import dearpygui.dearpygui as dpg
 import time
 
+
+
 looper_parse = 1
 mode = ''
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
 list_of_modes = ['search','dbe','dev','stop']
 list_of_races = ['aqua','beast','beast-warrior','creator-god','cyberse','dinosaur','divine-beast','dragon','fairy','fiend','fish','insect','machine','plant','psychic','pyro','reptile','rock','sea serpent','spellcaster','thunder','warrior','winged beast','wyrm','zombie','normal','field','equip','continuous','quick-play','ritual','normal','continuous','counter']
-list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist','format'] #LIST OF ACCEPTABLE PARAMETERS
+list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist'] #LIST OF ACCEPTABLE PARAMETERS
 list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
 list_of_linkmarkers = ['top', 'bottom', 'left', 'right', 'bottom-left', 'bottom-right', 'top-left', 'top-right']
 list_of_formats = ['TCG','OCG','GOAT']
@@ -25,7 +27,7 @@ def mode_maker():
      global mode
      counter = 1
      while counter > 0 :
-          mode = input('what mode are we in: ')
+          mode = input('what mode are we in: ').lower()
           if mode not in list_of_modes:
                print('incorrect mode')
           else:
@@ -34,6 +36,10 @@ def mode_maker():
 
 #USER CREATION AND LOGIN SYSTEM
 def read_accounts(): #reads the account file and splits the username and password of the user
+     if not os.path.exists('Accounts_NEA.txt'):
+          with open('Accounts_NEA.txt', 'w') as f:  # Create an empty file if it doesn't exist
+               pass
+          read_accounts()
      with open('Accounts_NEA.txt', 'r' ) as account_read:
           contents = account_read.readlines()
           new_contents = []
@@ -44,6 +50,7 @@ def read_accounts(): #reads the account file and splits the username and passwor
                fields[1]=fields[1].rstrip()
                new_contents.append(fields)
           return new_contents
+     
 
 #login function checks if username and password are in the program
 def login():#(sender,data):
@@ -155,13 +162,14 @@ def error(card_parameter): #this funtion is the mapped to each error and runs wh
                     print('Archetype not in set, please try again')
                case 'banlist':
                     print('The banlist for this format does not exist,try again')
-               case 'format':
-                    print('This format does not exist,try again')
+               case _: 
+                    print('no parameter passed, try again')
+          
                
 
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
 list_of_races = ['aqua','beast','beast-warrior','creator-god','cyberse','dinosaur','divine-beast','dragon','fairy','fiend','fish','insect','machine','plant','psychic','pyro','reptile','rock','sea serpent','spellcaster','thunder','warrior','winged beast','wyrm','zombie','normal','field','equip','continuous','quick-play','ritual','normal','continuous','counter']
-list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist','format'] #LIST OF ACCEPTABLE PARAMETERS
+list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist'] #LIST OF ACCEPTABLE PARAMETERS
 list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
 list_of_linkmarkers = ['top', 'bottom', 'left', 'right', 'bottom-left', 'bottom-right', 'top-left', 'top-right']
 list_of_formats = ['TCG','OCG','GOAT']
@@ -170,9 +178,10 @@ list_of_formats = ['TCG','OCG','GOAT']
 
 # THIS IS A BETA VERSION OF THE GENERIC CARD SEARCH
 looper_parse = 1
-def card_parser(card_parameter , corresponding_variable):
+def card_parser_validator(card_parameter , corresponding_variable):
      card_parameter = card_parameter.lower()
      #SWITCH CASE TO VALIDATE THE PARAMETERS AND CORRESPONDING VARIABLES
+     global looper_parse
      match card_parameter:
           case 'name':
                return(True)
@@ -186,6 +195,7 @@ def card_parser(card_parameter , corresponding_variable):
                     looper_parse = 0
                else:
                     error('id')
+                    return False
           case 'type':
                with open('Types_for_check.txt') as Type_check: # opens text file with all the types
                     #print('test')
@@ -205,18 +215,21 @@ def card_parser(card_parameter , corresponding_variable):
                                    len_counter +=1 # increments if the current line is not the same as our variable
                     if len_counter == length_of_file: # if we have checked every line and we still havent gotten our variable then theres been an error
                          error('type')
+                         return False
           case 'atk':
                if corresponding_variable.isdigit() == True or corresponding_variable == '?':
                     return(True)
                     looper_parse = 0
                else:
                     error('atk')
+                    return False
           case 'def':
                if corresponding_variable.isdigit() == True or corresponding_variable == '?':
                     return(True)
                     looper_parse = 0
                else:
                     error('def')
+                    return False
           case 'level':
                if corresponding_variable.isdigit() == True:
                     if int(corresponding_variable) >= 0 and int(corresponding_variable) <= 13:
@@ -225,8 +238,10 @@ def card_parser(card_parameter , corresponding_variable):
                     elif int(corresponding_variable) < 0 or int(corresponding_variable) > 13:
                          print('value is not in correct range')
                          error('general')
-               else:
+                         return False
+               if not corresponding_variable.isdigit() or not (0 <= int(corresponding_variable) <= 13):
                     error('level')
+                    return False
           case 'race':
                if corresponding_variable.lower() in list_of_races:
                     return(True)
@@ -247,14 +262,17 @@ def card_parser(card_parameter , corresponding_variable):
                          elif int(corresponding_variable) < 0 or int(corresponding_variable) > 6:
                               print('value is not in correct range')
                               error('general')
+                              return False
                else:
                          error('link')
+                         return False
           case 'linkmarker':
                if corresponding_variable.lower() in list_of_linkmarkers:
                     return(True)
                     looper_parse = 0
                else:
                     error('linkmarker')
+                    return False
           case 'scale':
                if corresponding_variable.isdigit() == True:
                     if int(corresponding_variable) >= 0 and int(corresponding_variable) <= 14:
@@ -263,8 +281,10 @@ def card_parser(card_parameter , corresponding_variable):
                     elif int(corresponding_variable) < 0 or int(corresponding_variable) > 14:
                          print('value is not in correct range')
                          error('general')
+                         return False
                else:
                          error('scale')
+                         return False
           case 'cardset':
                     with open('Cardset_for_check.txt') as Type_check:
                          datafile = Type_check.readlines()
@@ -282,6 +302,7 @@ def card_parser(card_parameter , corresponding_variable):
                                    len_counter +=1
                     if len_counter == length_of_file:
                          error('cardset')
+                         return False
           case 'archetype':
                     with open('Archetypes_for_check.txt') as Type_check:
                          datafile = Type_check.readlines()
@@ -298,40 +319,37 @@ def card_parser(card_parameter , corresponding_variable):
                                         len_counter +=1
                          if len_counter == length_of_file:
                               error('archetype')
+                              return False
           case 'banlist':
                if corresponding_variable.upper() in list_of_formats:
                     return(True)
                     looper_parse = 0
                else:
                     error('banlist')
-          case 'format':
-               if  corresponding_variable.upper() in list_of_formats:
-                    return(True)
-                    looper_parse = 0
-               else:
-                    error('format')
+                    return False
      if card_parameter not in list_of_acceptable_params:
           print('Parameter not parasable')
           error('general')
+          return False
                
 
 
 
 
 #DATABASE PARSE CALL CODE
-def database_call():                 
+def database_call(search_dict):                 
           try:
-               r = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php',params={
-               f'{card_parameter}' : f'{corresponding_variable}'})
+               r = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php',params=search_dict)
 
                if r.status_code == 200:
                     j_pretty_print(r.json())
                     looper_parse = 0
                     return r
                else:
-                    print('error')
+                    print(f'error:{r.status_code}')
+
           except:
-               print('Error has occured in database parser')
+               print('error')
           
 
 while mode == 'stop':
@@ -340,31 +358,45 @@ while mode == 'stop':
 
 #actual search for cards
 while looper_parse > 0 and mode == 'search':
-     card_parameter = input('what ygo api type thing are you searching for: ')
-     corresponding_variable = input('corresponding: ')
-     parse = card_parser(card_parameter,corresponding_variable)
-     if parse == True:
-          global call_return
-          call_return = database_call()
-          counter = 1
-          while counter > 0:
-               again = input('''Would you like to search again?
-               click 1 to search again 
-               click 2 to begin deck building
-               click 3 to stop
-               : ''')
+     search_dict = {}
+     parameter_number = input('how many parameters would you like to pass?: ')
+     while not parameter_number.isdigit():
+               print('Error input was not a number')
+               parameter_number = input('how many parameters would you like to pass?: ')
 
-               if again == '1':
-                    mode = 'search'
-                    counter = 0
-               elif again == '2':
-                    mode = 'dbe'
-                    counter = 0
-               elif again == '3':
-                    mode ='stop'
-                    counter = 0
-               else:
-                    print('incorrect response')
+     parameter_number = int(parameter_number)
+
+     for _ in range(parameter_number):
+          card_parameter = input('Param: ') # takes in parameter for search
+          corresponding_variable = input('Variable: ') # the variable correspoding to the parameter that the user wants to actually search for like a specific card type or card.
+          if card_parameter in list_of_acceptable_params:
+               search_dict[card_parameter] = corresponding_variable
+          else:
+               print(f'Invalid parameter:{card_parameter}, please try again')
+     if search_dict:
+          call_return = database_call(search_dict)
+     else:
+          print('No valid parameters provided. Please enter valid search terms.')
+          
+     counter = 1
+     while counter > 0:
+          again = input('''Would you like to search again?
+          click 1 to search again 
+          click 2 to begin deck building
+          click 3 to stop
+          : ''')
+
+          if again == '1':
+               mode = 'search'
+               counter = 0
+          elif again == '2':
+               mode = 'dbe'
+               counter = 0
+          elif again == '3':
+               mode ='stop'
+               counter = 0
+          else:
+               print('incorrect response')
 
 
 #Deck building environment
