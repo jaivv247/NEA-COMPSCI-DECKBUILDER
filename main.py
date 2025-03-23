@@ -7,7 +7,7 @@ import dearpygui.dearpygui as dpg
 import time
 
 
-
+global looper_parse
 looper_parse = 1
 mode = ''
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
@@ -83,7 +83,6 @@ def create_accounts():#(sender,data):
      while counter > 0:
         create_username = str(input('Input a username: '))
         create_password = str(input('Input a password: '))
-
         username_exists = False
         logins = read_accounts()
         for line in logins:
@@ -185,14 +184,11 @@ def card_parser_validator(card_parameter , corresponding_variable):
      match card_parameter:
           case 'name':
                return(True)
-               looper_parse = 0
           case 'fname':
                return(True)
-               looper_parse = 0
           case 'id':
                if corresponding_variable.isdigit() == True:
                     return(True)
-                    looper_parse = 0
                else:
                     error('id')
                     return False
@@ -207,7 +203,6 @@ def card_parser_validator(card_parameter , corresponding_variable):
                          for line in datafile: # for each line in the file
                               if corresponding_variable.upper() in line: # we check if the corresponding variable is in the list
                                    Type_check.close()
-                                   looper_parse = 0
                                    len_counter = length_of_file +1# does this to stop the while loop whilst also not flag an error
                                    #print('test')
                                    return(True)
@@ -219,14 +214,13 @@ def card_parser_validator(card_parameter , corresponding_variable):
           case 'atk':
                if corresponding_variable.isdigit() == True or corresponding_variable == '?':
                     return(True)
-                    looper_parse = 0
+                    
                else:
                     error('atk')
                     return False
           case 'def':
                if corresponding_variable.isdigit() == True or corresponding_variable == '?':
                     return(True)
-                    looper_parse = 0
                else:
                     error('def')
                     return False
@@ -234,7 +228,6 @@ def card_parser_validator(card_parameter , corresponding_variable):
                if corresponding_variable.isdigit() == True:
                     if int(corresponding_variable) >= 0 and int(corresponding_variable) <= 13:
                          return(True)
-                         looper_parse = 0
                     elif int(corresponding_variable) < 0 or int(corresponding_variable) > 13:
                          print('value is not in correct range')
                          error('general')
@@ -245,20 +238,17 @@ def card_parser_validator(card_parameter , corresponding_variable):
           case 'race':
                if corresponding_variable.lower() in list_of_races:
                     return(True)
-                    looper_parse = 0
                else:
                     error('race')
           case 'attribute':
                if corresponding_variable.upper() in list_of_attributes:
                     return(True)
-                    looper_parse = 0
                else:
                     error('attribute')
           case 'link':
                if corresponding_variable.isdigit() == True:
                          if int(corresponding_variable) > 0 and int(corresponding_variable) <=6:
                               return(True)
-                              looper_parse = 0
                          elif int(corresponding_variable) < 0 or int(corresponding_variable) > 6:
                               print('value is not in correct range')
                               error('general')
@@ -269,7 +259,6 @@ def card_parser_validator(card_parameter , corresponding_variable):
           case 'linkmarker':
                if corresponding_variable.lower() in list_of_linkmarkers:
                     return(True)
-                    looper_parse = 0
                else:
                     error('linkmarker')
                     return False
@@ -277,7 +266,6 @@ def card_parser_validator(card_parameter , corresponding_variable):
                if corresponding_variable.isdigit() == True:
                     if int(corresponding_variable) >= 0 and int(corresponding_variable) <= 14:
                          return(True)
-                         looper_parse = 0
                     elif int(corresponding_variable) < 0 or int(corresponding_variable) > 14:
                          print('value is not in correct range')
                          error('general')
@@ -294,8 +282,6 @@ def card_parser_validator(card_parameter , corresponding_variable):
                          for line in datafile:
                               if corresponding_variable.upper() in line:
                                    Type_check.close()
-
-                                   looper_parse = 0
                                    len_counter = length_of_file +1
                                    return(True)
                               else:
@@ -312,7 +298,7 @@ def card_parser_validator(card_parameter , corresponding_variable):
                               for line in datafile:
                                    if corresponding_variable.upper() in line:
                                         Type_check.close()
-                                        looper_parse = 0
+                                        
                                         len_counter = length_of_file +1
                                         return(True)
                                    else:
@@ -323,7 +309,6 @@ def card_parser_validator(card_parameter , corresponding_variable):
           case 'banlist':
                if corresponding_variable.upper() in list_of_formats:
                     return(True)
-                    looper_parse = 0
                else:
                     error('banlist')
                     return False
@@ -343,7 +328,6 @@ def database_call(search_dict):
 
                if r.status_code == 200:
                     j_pretty_print(r.json())
-                    looper_parse = 0
                     return r
                else:
                     print(f'error:{r.status_code}')
@@ -357,7 +341,7 @@ while mode == 'stop':
 
 
 #actual search for cards
-while looper_parse > 0 and mode == 'search':
+while mode == 'search':
      search_dict = {}
      parameter_number = input('how many parameters would you like to pass?: ')
      while not parameter_number.isdigit():
@@ -365,19 +349,19 @@ while looper_parse > 0 and mode == 'search':
                parameter_number = input('how many parameters would you like to pass?: ')
 
      parameter_number = int(parameter_number)
-
+     
      for _ in range(parameter_number):
           card_parameter = input('Param: ') # takes in parameter for search
           corresponding_variable = input('Variable: ') # the variable correspoding to the parameter that the user wants to actually search for like a specific card type or card.
-          if card_parameter in list_of_acceptable_params:
+          validate = card_parser_validator(card_parameter,corresponding_variable)
+          if validate == True:
                search_dict[card_parameter] = corresponding_variable
           else:
-               print(f'Invalid parameter:{card_parameter}, please try again')
+               parameter_number +=1
      if search_dict:
           call_return = database_call(search_dict)
      else:
           print('No valid parameters provided. Please enter valid search terms.')
-          
      counter = 1
      while counter > 0:
           again = input('''Would you like to search again?
