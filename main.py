@@ -9,7 +9,7 @@ import time
 
 mode = ''
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
-list_of_modes = ['search','dbe','dev','stop']
+list_of_modes = ['search','dbe','dev','stop','create',;'menu']
 list_of_races = ['aqua','beast','beast-warrior','creator-god','cyberse','dinosaur','divine-beast','dragon','fairy','fiend','fish','insect','machine','plant','psychic','pyro','reptile','rock','sea serpent','spellcaster','thunder','warrior','winged beast','wyrm','zombie','normal','field','equip','continuous','quick-play','ritual','normal','continuous','counter']
 list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist'] #LIST OF ACCEPTABLE PARAMETERS
 list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
@@ -56,15 +56,17 @@ def login():#(sender,data):
      while counter > 0:
           #ask_username = dpg.add_input_text(label='Username: ',default_value='Type here')
           #ask_password = dpg.add_input_text(label='Password: ',default_value='Type here')
-          ask_username = str(input('username: '))
-          ask_password = str(input('password: '))
+          global username
+          global password
+          username = str(input('username: '))
+          password = str(input('password: '))
           logged_in = False
           logins = read_accounts()
           #print(logins)
           for line in logins:
                #print(line[0])
-               if line[0] == ask_username and logged_in == False:
-                    if line[1] == ask_password:
+               if line[0] == username and logged_in == False:
+                    if line[1] == password:
                          logged_in = True
           if logged_in == True:
                counter = 0
@@ -74,6 +76,7 @@ def login():#(sender,data):
           else:
                #dpg.add_text('Username/Password incorrect')
                print('Username/Password incorrect')
+          
 
 #reads the existing accounts and creates a new account based on that
 def create_accounts():#(sender,data):
@@ -93,6 +96,14 @@ def create_accounts():#(sender,data):
             with open('Accounts_NEA.txt', 'a') as account_make:
                 account_make.write(f'{create_username},{create_password}\n')
             print('Account created successfully')
+
+            user_folder = os.path.join(os.getcwd(), create_username)
+            if not os.path.exists(user_folder):
+                os.makedirs(user_folder)
+                print(f'Folder "{create_username}" created successfully.')
+            else:
+                print(f'Folder "{create_username}" already exists.')
+                      
             counter = -1
      login()
 
@@ -315,26 +326,20 @@ def card_parser_validator(card_parameter , corresponding_variable):
                
 
 
-
-
 #DATABASE PARSE CALL CODE
 def database_call(search_dict):                 
           try:
                r = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php',params=search_dict)
-
                if r.status_code == 200:
                     j_pretty_print(r.json())
                     return r
                else:
                     print(f'error:{r.status_code}')
-
           except:
                print('error')
-          
 
 while mode == 'stop':
      break
-
 
 #actual search for cards
 while mode == 'search':
@@ -380,6 +385,21 @@ while mode == 'search':
 
 
 #Deck building environment
+def create_deck_file(deck_name, username):
+    user_folder = os.path.join(os.getcwd(), username)
+    if not os.path.exists(user_folder):
+        print(f"User folder '{username}' does not exist. Creating folder...")
+        os.makedirs(user_folder)
+
+    deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
+
+    if os.path.exists(deck_file_path):
+        print(f"Deck '{deck_name}' already exists.")
+    else:
+        with open(deck_file_path, "w") as deck_file:
+            json.dump([], deck_file)
+        print(f"Deck '{deck_name}' created successfully.")
+
 def inital_search_func(search):
      search_data = json.loads(j_compact_print(search.json()))
 
@@ -416,6 +436,9 @@ def on_click_search_func(search):
      return extracted_data
 
 
+def save_card_to_deck(deck_name, username, card_data):
+    
+     
 
      # with open('search.txt','w') as f:
      #      f.write(search)
@@ -423,11 +446,21 @@ def on_click_search_func(search):
 
      #search_dictionary = search.json()
 
+while mode == 'create':
+     deckname = 'what is the name of your deck: '
+     create_deck_file(deckname,username)
+     mode = 'search'
+
 
 while mode == 'dbe':
      #print('Mode was changed')
      inital_search_func(call_return)
      #on_click_search_func(call_return)
+     add = save_card_to_deck(deckname, username, call_return)
+
+     if add == False:
+          mode = 'create'
+     
      mode = 'stop'
 
 
@@ -435,6 +468,8 @@ while mode == 'dbe':
 
 
           
+
+
 
 
 
