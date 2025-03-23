@@ -7,8 +7,6 @@ import dearpygui.dearpygui as dpg
 import time
 
 
-global looper_parse
-looper_parse = 1
 mode = ''
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
 list_of_modes = ['search','dbe','dev','stop']
@@ -176,11 +174,9 @@ list_of_formats = ['TCG','OCG','GOAT']
 
 
 # THIS IS A BETA VERSION OF THE GENERIC CARD SEARCH
-looper_parse = 1
 def card_parser_validator(card_parameter , corresponding_variable):
      card_parameter = card_parameter.lower()
      #SWITCH CASE TO VALIDATE THE PARAMETERS AND CORRESPONDING VARIABLES
-     global looper_parse
      match card_parameter:
           case 'name':
                return(True)
@@ -349,7 +345,7 @@ while mode == 'search':
                parameter_number = input('how many parameters would you like to pass?: ')
 
      parameter_number = int(parameter_number)
-     
+
      for _ in range(parameter_number):
           card_parameter = input('Param: ') # takes in parameter for search
           corresponding_variable = input('Variable: ') # the variable correspoding to the parameter that the user wants to actually search for like a specific card type or card.
