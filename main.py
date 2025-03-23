@@ -114,7 +114,7 @@ while check == False :
 
 #THESE FUNCTIONS ALLOW FOR PRINTING OF THE REQUEST SENT INTO THE API
 def j_pretty_print(obj):
-     text = json.dumps(obj, sort_keys= True, indent= 4)
+     text = json.dumps(obj, indent= 4)
      print(text)
      return text
 def j_compact_print(obj):
@@ -352,7 +352,7 @@ while mode == 'search':
           validate = card_parser_validator(card_parameter,corresponding_variable)
           if validate == True:
                search_dict[card_parameter] = corresponding_variable
-          else:
+          elif validate == False:
                parameter_number +=1
      if search_dict:
           call_return = database_call(search_dict)
@@ -380,23 +380,40 @@ while mode == 'search':
 
 
 #Deck building environment
-def search_func(search):
-     search = j_compact_print(search.json())
-     search = json.loads(search)
-     print(str(search))
-     # Using dict()
-     # Extracting specific keys from dictionary
-     
+def inital_search_func(search):
+     search_data = json.loads(j_compact_print(search.json()))
 
-     keys_to_extract = ['id','name','typeline','humanReadableCardType','type','desc','atk','def','level','attribute','archetype','race']
-     res = dict(filter(lambda item: item[0] in keys_to_extract, search.items()))
+     if "data" not in search_data:
+          print("No valid card data found.")
+          return
+
+     keys_to_extract = ['name', 'type']
+
+     extracted_data = []
+     for card in search_data["data"]:
+          filtered_card = {key: card[key] for key in keys_to_extract if key in card}
+          extracted_data.append(filtered_card)
+
+     j_pretty_print(extracted_data)
+     return extracted_data
 
 
+def on_click_search_func(search):
+     search_data = json.loads(j_compact_print(search.json()))
 
+     if "data" not in search_data:
+          print("No valid card data found.")
+          return
 
+     keys_to_extract = ['id', 'name', 'type', 'desc', 'atk', 'def', 'level', 'attribute', 'archetype', 'race']
 
-     #user_search_info = dict((k, search[k]) for k in ['id','name','typeline','humanReadableCardType','type','desc','atk','def','level','attribute','archetype','race'] if k in search)
-     print(str(res))
+     extracted_data = []
+     for card in search_data["data"]:
+          filtered_card = {key: card[key] for key in keys_to_extract if key in card}
+          extracted_data.append(filtered_card)
+
+     j_pretty_print(extracted_data)
+     return extracted_data
 
 
 
@@ -409,7 +426,8 @@ def search_func(search):
 
 while mode == 'dbe':
      #print('Mode was changed')
-     search_func(call_return)
+     inital_search_func(call_return)
+     #on_click_search_func(call_return)
      mode = 'stop'
 
 
