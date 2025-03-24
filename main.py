@@ -6,10 +6,10 @@ from sys import argv
 import dearpygui.dearpygui as dpg
 import time
 
-
+global mode
 mode = ''
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
-list_of_modes = ['search','dbe','dev','stop','create',;'menu']
+list_of_modes = ['search','dbe','dev','stop','create','menu']
 list_of_races = ['aqua','beast','beast-warrior','creator-god','cyberse','dinosaur','divine-beast','dragon','fairy','fiend','fish','insect','machine','plant','psychic','pyro','reptile','rock','sea serpent','spellcaster','thunder','warrior','winged beast','wyrm','zombie','normal','field','equip','continuous','quick-play','ritual','normal','continuous','counter']
 list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist'] #LIST OF ACCEPTABLE PARAMETERS
 list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
@@ -22,14 +22,27 @@ os.chdir(script_directory)
 
 #MODE CHOOSE CODE INTO DBE OR PARSE FOR TESTS AND SUCH
 def mode_maker():
-     global mode
      counter = 1
      while counter > 0 :
           mode = input('what mode are we in: ').lower()
           if mode not in list_of_modes:
                print('incorrect mode')
           else:
-               return mode
+               match mode:
+                    case 'search':
+                         mode_search()
+                    case 'dbe':
+                         mode_dbe()
+                    #'dev':
+                         # mode_dev()
+                    'stop':
+                         mode_stop()
+                    'create':
+                         mode_create()
+                    #'menu':
+                         #mode_menu()
+
+               return 
      
 
 #USER CREATION AND LOGIN SYSTEM
@@ -338,11 +351,11 @@ def database_call(search_dict):
           except:
                print('error')
 
-while mode == 'stop':
+mode_stop():
      break
 
 #actual search for cards
-while mode == 'search':
+mode_search():
      search_dict = {}
      parameter_number = input('how many parameters would you like to pass?: ')
      while not parameter_number.isdigit():
@@ -372,13 +385,13 @@ while mode == 'search':
           : ''')
 
           if again == '1':
-               mode = 'search'
+               mode_search()
                counter = 0
           elif again == '2':
-               mode = 'dbe'
+               mode_dbe(call_return)
                counter = 0
           elif again == '3':
-               mode ='stop'
+               mode_stop()
                counter = 0
           else:
                print('incorrect response')
@@ -437,7 +450,7 @@ def on_click_search_func(search):
 
 
 def save_card_to_deck(deck_name, username, card_data):
-    
+    some
      
 
      # with open('search.txt','w') as f:
@@ -446,22 +459,36 @@ def save_card_to_deck(deck_name, username, card_data):
 
      #search_dictionary = search.json()
 
-while mode == 'create':
-     deckname = 'what is the name of your deck: '
+mode_create():
+     deckname = input('what is the name of your deck: ')
      create_deck_file(deckname,username)
-     mode = 'search'
+     mode_search()
 
 
-while mode == 'dbe':
+mode_dbe(call_return):
      #print('Mode was changed')
      inital_search_func(call_return)
      #on_click_search_func(call_return)
-     add = save_card_to_deck(deckname, username, call_return)
+     # add = save_card_to_deck(deckname, username, call_return)
 
-     if add == False:
-          mode = 'create'
-     
-     mode = 'stop'
+     # if add == False:
+     #      mode = 'create'
+
+     counter = 1
+     while counter > 0:
+          again = input('''Would you like to search again?
+          click 1 to search again 
+          click 2 to stop
+          : ''')
+
+          if again == '1':
+               mode_search()
+               counter = 0
+          elif again == '2':
+               mode_stop()
+               counter = 0
+          else:
+               print('incorrect response')
 
 
 
