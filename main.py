@@ -20,121 +20,61 @@ list_of_formats = ['TCG','OCG','GOAT']
 script_directory = os.path.dirname(os.path.abspath(argv[0])) #change file path to current file to ignore path to file, only needs to change path from file
 os.chdir(script_directory)
 
-#MODE CHOOSE CODE INTO DBE OR PARSE FOR TESTS AND SUCH
-def mode_maker():
-     counter = 1
-     while counter > 0 :
-          mode = input('what mode are we in: ').lower()
-          if mode not in list_of_modes:
-               print('incorrect mode')
-          else:
-               match mode:
-                    case 'search':
-                         mode_search()
-                    case 'dbe':
-                         mode_dbe()
-                    #'dev':
-                         # mode_dev()
-                    'stop':
-                         mode_stop()
-                    'create':
-                         mode_create()
-                    #'menu':
-                         #mode_menu()
+#Deck building environment
+def create_deck_file(deck_name, username):
+     user_folder = os.path.join(os.getcwd(), username)
+     if not os.path.exists(user_folder):
+          print(f"User folder '{username}' does not exist. Creating folder...")
+          os.makedirs(user_folder)
+     deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
+     with open(deck_file_path, "w") as deck_file:
+          json.dump([], deck_file)
+          print(f"Deck '{deck_name}' created successfully.")
 
-               return 
+def inital_search_func(search):
+     search_data = json.loads(j_compact_print(search.json()))
+
+     if "data" not in search_data:
+          print("No valid card data found.")
+          return
+
+     keys_to_extract = ['name', 'type']
+
+     extracted_data = []
+     for card in search_data["data"]:
+          filtered_card = {key: card[key] for key in keys_to_extract if key in card}
+          extracted_data.append(filtered_card)
+
+     j_pretty_print(extracted_data)
+     return extracted_data
+
+
+def on_click_search_func(search):
+     search_data = json.loads(j_compact_print(search.json()))
+
+     if "data" not in search_data:
+          print("No valid card data found.")
+          return
+
+     keys_to_extract = ['id', 'name', 'type', 'desc', 'atk', 'def', 'level', 'attribute', 'archetype', 'race']
+
+     extracted_data = []
+     for card in search_data["data"]:
+          filtered_card = {key: card[key] for key in keys_to_extract if key in card}
+          extracted_data.append(filtered_card)
+
+     j_pretty_print(extracted_data)
+     return extracted_data
+
+def deck_size_check(deck_name):
      
 
-#USER CREATION AND LOGIN SYSTEM
-def read_accounts(): #reads the account file and splits the username and password of the user
-     if not os.path.exists('Accounts_NEA.txt'):
-          with open('Accounts_NEA.txt', 'w') as f:  # Create an empty file if it doesn't exist
-               pass
-          read_accounts()
-     with open('Accounts_NEA.txt', 'r' ) as account_read:
-          contents = account_read.readlines()
-          new_contents = []
-
-          for line in contents:
-               fields = line.split(',')
-               #print(fields)
-               fields[1]=fields[1].rstrip()
-               new_contents.append(fields)
-          return new_contents
-     
-
-#login function checks if username and password are in the program
-def login():#(sender,data):
-     counter = 1
-     while counter > 0:
-          #ask_username = dpg.add_input_text(label='Username: ',default_value='Type here')
-          #ask_password = dpg.add_input_text(label='Password: ',default_value='Type here')
-          global username
-          global password
-          username = str(input('username: '))
-          password = str(input('password: '))
-          logged_in = False
-          logins = read_accounts()
-          #print(logins)
-          for line in logins:
-               #print(line[0])
-               if line[0] == username and logged_in == False:
-                    if line[1] == password:
-                         logged_in = True
-          if logged_in == True:
-               counter = 0
-               #dpg.add_text('Logged in successfully')
-               print('Logged in successfully')
-               mode_maker()
-          else:
-               #dpg.add_text('Username/Password incorrect')
-               print('Username/Password incorrect')
-          
-
-#reads the existing accounts and creates a new account based on that
-def create_accounts():#(sender,data):
-     counter = 1
-     while counter > 0:
-        create_username = str(input('Input a username: '))
-        create_password = str(input('Input a password: '))
-        username_exists = False
-        logins = read_accounts()
-        for line in logins:
-            if line[0] == create_username:
-                username_exists = True
-                break
-        if username_exists:
-            print('Username already exists, please choose a different one')
-        else:
-            with open('Accounts_NEA.txt', 'a') as account_make:
-                account_make.write(f'{create_username},{create_password}\n')
-            print('Account created successfully')
-
-            user_folder = os.path.join(os.getcwd(), create_username)
-            if not os.path.exists(user_folder):
-                os.makedirs(user_folder)
-                print(f'Folder "{create_username}" created successfully.')
-            else:
-                print(f'Folder "{create_username}" already exists.')
-                      
-            counter = -1
-     login()
+def save_card_to_deck(deck_name, username, card_data):
+     with open(f'{deck_name}.json','w') as deck file:
+          counter_of_number
+     #search_dictionary = search.json()
 
 
-#terminal side UI for test
-
-check = False
-while check == False :
-     entry = input('''Welcome to the program:
-               click 1 to create an account
-               click 2 to login
-               : ''')
-     if entry == '1':
-          create_accounts()
-          check = True
-     elif entry == '2':
-          login()
-          check = True
 
 #THESE FUNCTIONS ALLOW FOR PRINTING OF THE REQUEST SENT INTO THE API
 def j_pretty_print(obj):
@@ -146,7 +86,17 @@ def j_compact_print(obj):
      return text
 
 
-
+#DATABASE PARSE CALL CODE
+def database_call(search_dict):                 
+          try:
+               r = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php',params=search_dict)
+               if r.status_code == 200:
+                    j_pretty_print(r.json())
+                    return r
+               else:
+                    print(f'error:{r.status_code}')
+          except:
+               print('error')
 
 def error(card_parameter): #this funtion is the mapped to each error and runs whenever an error occurs for the card parameters
      print('Error has occured')
@@ -186,16 +136,6 @@ def error(card_parameter): #this funtion is the mapped to each error and runs wh
                case _: 
                     print('no parameter passed, try again')
           
-               
-
-#ALL THE STRINGS TO CHECK VARIABLES AGAINST
-list_of_races = ['aqua','beast','beast-warrior','creator-god','cyberse','dinosaur','divine-beast','dragon','fairy','fiend','fish','insect','machine','plant','psychic','pyro','reptile','rock','sea serpent','spellcaster','thunder','warrior','winged beast','wyrm','zombie','normal','field','equip','continuous','quick-play','ritual','normal','continuous','counter']
-list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist'] #LIST OF ACCEPTABLE PARAMETERS
-list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
-list_of_linkmarkers = ['top', 'bottom', 'left', 'right', 'bottom-left', 'bottom-right', 'top-left', 'top-right']
-list_of_formats = ['TCG','OCG','GOAT']
-
-
 
 # THIS IS A BETA VERSION OF THE GENERIC CARD SEARCH
 def card_parser_validator(card_parameter , corresponding_variable):
@@ -336,26 +276,37 @@ def card_parser_validator(card_parameter , corresponding_variable):
           print('Parameter not parasable')
           error('general')
           return False
-               
+
+def mode_stop():
+     quit()
+
+def mode_dbe(call_return):
+     #print('Mode was changed')
+     inital_search_func(call_return)
+     #on_click_search_func(call_return)
+     # add = save_card_to_deck(deckname, username, call_return)
+
+     # if add == False:
+     #      mode = 'create'
+
+     counter = 1
+     while counter > 0:
+          again = input('''Would you like to search again?
+          click 1 to search again 
+          click 2 to stop
+          : ''')
+
+          if again == '1':
+               mode_search()
+               counter = 0
+          elif again == '2':
+               mode_stop()
+               counter = 0
+          else:
+               print('incorrect response')
 
 
-#DATABASE PARSE CALL CODE
-def database_call(search_dict):                 
-          try:
-               r = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php',params=search_dict)
-               if r.status_code == 200:
-                    j_pretty_print(r.json())
-                    return r
-               else:
-                    print(f'error:{r.status_code}')
-          except:
-               print('error')
-
-mode_stop():
-     break
-
-#actual search for cards
-mode_search():
+def mode_search():
      search_dict = {}
      parameter_number = input('how many parameters would you like to pass?: ')
      while not parameter_number.isdigit():
@@ -397,105 +348,140 @@ mode_search():
                print('incorrect response')
 
 
-#Deck building environment
-def create_deck_file(deck_name, username):
-    user_folder = os.path.join(os.getcwd(), username)
-    if not os.path.exists(user_folder):
-        print(f"User folder '{username}' does not exist. Creating folder...")
-        os.makedirs(user_folder)
+def mode_create(username):
+     deck_name = input('what is the name of your deck: ')
 
-    deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
+     user_folder = os.path.join(os.getcwd(), username)
 
-    if os.path.exists(deck_file_path):
+     deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
+     if os.path.exists(deck_file_path):
         print(f"Deck '{deck_name}' already exists.")
-    else:
-        with open(deck_file_path, "w") as deck_file:
-            json.dump([], deck_file)
-        print(f"Deck '{deck_name}' created successfully.")
-
-def inital_search_func(search):
-     search_data = json.loads(j_compact_print(search.json()))
-
-     if "data" not in search_data:
-          print("No valid card data found.")
-          return
-
-     keys_to_extract = ['name', 'type']
-
-     extracted_data = []
-     for card in search_data["data"]:
-          filtered_card = {key: card[key] for key in keys_to_extract if key in card}
-          extracted_data.append(filtered_card)
-
-     j_pretty_print(extracted_data)
-     return extracted_data
+        mode_create(username)
+     else:
+          create_deck_file(deck_name,username)
+          mode_search()
 
 
-def on_click_search_func(search):
-     search_data = json.loads(j_compact_print(search.json()))
 
-     if "data" not in search_data:
-          print("No valid card data found.")
-          return
+#MODE CHOOSE CODE INTO DBE OR PARSE FOR TESTS AND SUCH
+def mode_maker():
+     counter = 1
+     while counter > 0 :
+          mode = input('what mode are we in: ').lower()
+          if mode not in list_of_modes:
+               print('incorrect mode')
+          else:
+               match mode:
+                    case 'search':
+                         mode_search()
+                    case 'dbe':
+                         mode_dbe()
+                    #'dev':
+                         # mode_dev()
+                    case 'stop':
+                         mode_stop()
+                    case 'create':
+                         mode_create(username)
+                    #'menu':
+                         #mode_menu()
 
-     keys_to_extract = ['id', 'name', 'type', 'desc', 'atk', 'def', 'level', 'attribute', 'archetype', 'race']
-
-     extracted_data = []
-     for card in search_data["data"]:
-          filtered_card = {key: card[key] for key in keys_to_extract if key in card}
-          extracted_data.append(filtered_card)
-
-     j_pretty_print(extracted_data)
-     return extracted_data
-
-
-def save_card_to_deck(deck_name, username, card_data):
-    some
+               return 
      
 
-     # with open('search.txt','w') as f:
-     #      f.write(search)
+#USER CREATION AND LOGIN SYSTEM
+def read_accounts(): #reads the account file and splits the username and password of the user
+     if not os.path.exists('Accounts_NEA.txt'):
+          with open('Accounts_NEA.txt', 'w') as f:  # Create an empty file if it doesn't exist
+               pass
+          read_accounts()
+     with open('Accounts_NEA.txt', 'r' ) as account_read:
+          contents = account_read.readlines()
+          new_contents = []
 
+          for line in contents:
+               fields = line.split(',')
+               #print(fields)
+               fields[1]=fields[1].rstrip()
+               new_contents.append(fields)
+          return new_contents
+     
 
-     #search_dictionary = search.json()
-
-mode_create():
-     deckname = input('what is the name of your deck: ')
-     create_deck_file(deckname,username)
-     mode_search()
-
-
-mode_dbe(call_return):
-     #print('Mode was changed')
-     inital_search_func(call_return)
-     #on_click_search_func(call_return)
-     # add = save_card_to_deck(deckname, username, call_return)
-
-     # if add == False:
-     #      mode = 'create'
-
+#login function checks if username and password are in the program
+def login():#(sender,data):
      counter = 1
      while counter > 0:
-          again = input('''Would you like to search again?
-          click 1 to search again 
-          click 2 to stop
-          : ''')
-
-          if again == '1':
-               mode_search()
+          #ask_username = dpg.add_input_text(label='Username: ',default_value='Type here')
+          #ask_password = dpg.add_input_text(label='Password: ',default_value='Type here')
+          global username
+          global password
+          username = str(input('username: '))
+          password = str(input('password: '))
+          logged_in = False
+          logins = read_accounts()
+          #print(logins)
+          for line in logins:
+               #print(line[0])
+               if line[0] == username and logged_in == False:
+                    if line[1] == password:
+                         logged_in = True
+          if logged_in == True:
                counter = 0
-          elif again == '2':
-               mode_stop()
-               counter = 0
+               #dpg.add_text('Logged in successfully')
+               print('Logged in successfully')
+               mode_maker()
           else:
-               print('incorrect response')
+               #dpg.add_text('Username/Password incorrect')
+               print('Username/Password incorrect')
+          
+
+#reads the existing accounts and creates a new account based on that
+def create_accounts():#(sender,data):
+     counter = 1
+     while counter > 0:
+        create_username = str(input('Input a username: '))
+        create_password = str(input('Input a password: '))
+        username_exists = False
+        logins = read_accounts()
+        for line in logins:
+            if line[0] == create_username:
+                username_exists = True
+                break
+        if username_exists:
+            print('Username already exists, please choose a different one')
+        else:
+            with open('Accounts_NEA.txt', 'a') as account_make:
+                account_make.write(f'{create_username},{create_password}\n')
+            print('Account created successfully')
+
+            user_folder = os.path.join(os.getcwd(), create_username)
+            if not os.path.exists(user_folder):
+                os.makedirs(user_folder)
+                print(f'Folder "{create_username}" created successfully.')
+            else:
+                print(f'Folder "{create_username}" already exists.')
+                      
+            counter = -1
+     login()
 
 
+#terminal side UI for test
+
+check = False
+while check == False :
+     entry = input('''Welcome to the program:
+               click 1 to create an account
+               click 2 to login
+               : ''')
+     if entry == '1':
+          create_accounts()
+          check = True
+     elif entry == '2':
+          login()
+          check = True
 
 
 
           
-
 
 
 
