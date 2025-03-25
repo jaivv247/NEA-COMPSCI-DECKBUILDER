@@ -20,6 +20,21 @@ list_of_formats = ['TCG','OCG','GOAT']
 script_directory = os.path.dirname(os.path.abspath(argv[0])) #change file path to current file to ignore path to file, only needs to change path from file
 os.chdir(script_directory)
 
+#THESE FUNCTIONS ALLOW FOR PRINTING OF THE REQUEST SENT INTO THE API
+def j_pretty_print(obj):
+     text = json.dumps(obj, indent= 4)
+     print(text)
+     return text
+def j_compact_print(obj):
+     text = json.dumps(obj,separators=(',',':'))
+     return text
+
+
+
+
+
+
+
 #Deck building environment
 def create_deck_file(deck_name, username):
      user_folder = os.path.join(os.getcwd(), username)
@@ -67,23 +82,21 @@ def on_click_search_func(search):
      return extracted_data
 
 def deck_size_check(deck_name):
-     
+     with open(f'{deck_name}.json','w') as deck_file:
+          number_of_cards = deck_file.readlines()
+          print(len(number_of_cards))
 
-def save_card_to_deck(deck_name, username, card_data):
-     with open(f'{deck_name}.json','w') as deck file:
-          counter_of_number
+def save_card_to_deck(deck_name, card_data):
+      with open(f'{deck_name}.json','w') as deck_file:
+          json.dumps(card_data)
+          
      #search_dictionary = search.json()
 
 
 
-#THESE FUNCTIONS ALLOW FOR PRINTING OF THE REQUEST SENT INTO THE API
-def j_pretty_print(obj):
-     text = json.dumps(obj, indent= 4)
-     print(text)
-     return text
-def j_compact_print(obj):
-     text = json.dumps(obj,separators=(',',':'))
-     return text
+
+
+
 
 
 #DATABASE PARSE CALL CODE
@@ -98,6 +111,13 @@ def database_call(search_dict):
           except:
                print('error')
 
+
+
+
+
+
+
+#ERROR FUNCTION MAPPED TO VALIDATION
 def error(card_parameter): #this funtion is the mapped to each error and runs whenever an error occurs for the card parameters
      print('Error has occured')
      match card_parameter:
@@ -137,7 +157,13 @@ def error(card_parameter): #this funtion is the mapped to each error and runs wh
                     print('no parameter passed, try again')
           
 
-# THIS IS A BETA VERSION OF THE GENERIC CARD SEARCH
+
+
+
+
+
+
+#FUNCTION TO SANITISE SEARCHES INTO API
 def card_parser_validator(card_parameter , corresponding_variable):
      card_parameter = card_parameter.lower()
      #SWITCH CASE TO VALIDATE THE PARAMETERS AND CORRESPONDING VARIABLES
@@ -277,12 +303,25 @@ def card_parser_validator(card_parameter , corresponding_variable):
           error('general')
           return False
 
+
+
+
+
+
+
+
+
+
+
+# MODE CODES TO RUN WHEN MODES CHANGE
 def mode_stop():
      quit()
 
-def mode_dbe(call_return):
+def mode_dbe(call_return,username,deck_name):
      #print('Mode was changed')
      inital_search_func(call_return)
+     save_card_to_deck(deck_name,call_return)
+     deck_size_check(deck_name)
      #on_click_search_func(call_return)
      # add = save_card_to_deck(deckname, username, call_return)
 
@@ -305,6 +344,19 @@ def mode_dbe(call_return):
           else:
                print('incorrect response')
 
+def mode_create(username):
+     global deck_name
+     deck_name = input('what is the name of your deck: ')
+
+     user_folder = os.path.join(os.getcwd(), username)
+
+     deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
+     if os.path.exists(deck_file_path):
+        print(f"Deck '{deck_name}' already exists.")
+        mode_create(username)
+     else:
+          create_deck_file(deck_name,username)
+          mode_search()
 
 def mode_search():
      search_dict = {}
@@ -339,7 +391,7 @@ def mode_search():
                mode_search()
                counter = 0
           elif again == '2':
-               mode_dbe(call_return)
+               mode_dbe(call_return,username,deck_name)
                counter = 0
           elif again == '3':
                mode_stop()
@@ -348,23 +400,9 @@ def mode_search():
                print('incorrect response')
 
 
-def mode_create(username):
-     deck_name = input('what is the name of your deck: ')
 
-     user_folder = os.path.join(os.getcwd(), username)
-
-     deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
-     if os.path.exists(deck_file_path):
-        print(f"Deck '{deck_name}' already exists.")
-        mode_create(username)
-     else:
-          create_deck_file(deck_name,username)
-          mode_search()
-
-
-
-#MODE CHOOSE CODE INTO DBE OR PARSE FOR TESTS AND SUCH
-def mode_maker():
+#FUNCTION THAT CHANGES MODES
+def mode_changer():
      counter = 1
      while counter > 0 :
           mode = input('what mode are we in: ').lower()
@@ -387,6 +425,11 @@ def mode_maker():
 
                return 
      
+
+
+
+
+
 
 #USER CREATION AND LOGIN SYSTEM
 def read_accounts(): #reads the account file and splits the username and password of the user
@@ -428,7 +471,7 @@ def login():#(sender,data):
                counter = 0
                #dpg.add_text('Logged in successfully')
                print('Logged in successfully')
-               mode_maker()
+               mode_changer()
           else:
                #dpg.add_text('Username/Password incorrect')
                print('Username/Password incorrect')
@@ -464,6 +507,12 @@ def create_accounts():#(sender,data):
      login()
 
 
+
+
+
+
+
+
 #terminal side UI for test
 
 check = False
@@ -482,6 +531,10 @@ while check == False :
 
 
           
+
+
+
+
 
 
 
