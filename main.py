@@ -9,7 +9,7 @@ import time
 global mode
 mode = ''
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
-list_of_modes = ['search','dbe','dev','stop','create','menu']
+list_of_modes = ['search','dbe','dev','stop','create','menu','open']
 list_of_races = ['aqua','beast','beast-warrior','creator-god','cyberse','dinosaur','divine-beast','dragon','fairy','fiend','fish','insect','machine','plant','psychic','pyro','reptile','rock','sea serpent','spellcaster','thunder','warrior','winged beast','wyrm','zombie','normal','field','equip','continuous','quick-play','ritual','normal','continuous','counter']
 list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist'] #LIST OF ACCEPTABLE PARAMETERS
 list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
@@ -88,7 +88,7 @@ def deck_size_check(deck_name):
 
 def save_card_to_deck(deck_name, card_data):
       with open(f'{deck_name}.json','w') as deck_file:
-          json.dumps(card_data)
+          json.dump(card_data,deck_file)
           
      #search_dictionary = search.json()
 
@@ -314,14 +314,31 @@ def card_parser_validator(card_parameter , corresponding_variable):
 
 
 # MODE CODES TO RUN WHEN MODES CHANGE
+def mode_open(username):
+     global deck_name
+     user_folder = os.path.join(os.getcwd(), username)
+     if not os.path.exists(user_folder):
+          print(f"User folder '{username}' does not exist.Deck creation not possible")
+          mode_changer()
+     
+     deck_name = input('What is the name of the deck you would like to open?: ')
+
+     deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
+     if not os.path.exists(deck_file_path):
+          print('deck does not exist please create it')
+          mode_create(username)
+     else:
+          mode_search()
+
+
 def mode_stop():
      quit()
 
 def mode_dbe(call_return,username,deck_name):
      #print('Mode was changed')
      inital_search_func(call_return)
-     save_card_to_deck(deck_name,call_return)
-     deck_size_check(deck_name)
+     #save_card_to_deck(deck_name,call_return)
+     #deck_size_check(deck_name)
      #on_click_search_func(call_return)
      # add = save_card_to_deck(deckname, username, call_return)
 
@@ -373,12 +390,11 @@ def mode_search():
           validate = card_parser_validator(card_parameter,corresponding_variable)
           if validate == True:
                search_dict[card_parameter] = corresponding_variable
-          elif validate == False:
-               parameter_number +=1
      if search_dict:
           call_return = database_call(search_dict)
      else:
           print('No valid parameters provided. Please enter valid search terms.')
+          parameter_number +=1
      counter = 1
      while counter > 0:
           again = input('''Would you like to search again?
@@ -422,6 +438,7 @@ def mode_changer():
                          mode_create(username)
                     #'menu':
                          #mode_menu()
+                    case 'open':
 
                return 
      
