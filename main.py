@@ -337,8 +337,8 @@ def mode_stop():
 def mode_dbe(call_return,username,deck_name):
      #print('Mode was changed')
      inital_search_func(call_return)
-     #save_card_to_deck(deck_name,call_return)
-     #deck_size_check(deck_name)
+     save_card_to_deck(deck_name,call_return)
+     deck_size_check(deck_name)
      #on_click_search_func(call_return)
      # add = save_card_to_deck(deckname, username, call_return)
 
@@ -439,8 +439,7 @@ def mode_changer():
                     #'menu':
                          #mode_menu()
                     case 'open':
-
-               return 
+                         mode_open(username)
      
 
 
