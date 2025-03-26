@@ -82,16 +82,30 @@ def on_click_search_func(search):
      return extracted_data
 
 def deck_size_check(deck_name):
-     with open(f'{deck_name}.json','w') as deck_file:
+     with open(f'{deck_name}.json','r') as deck_file:
           number_of_cards = deck_file.readlines()
           print(len(number_of_cards))
 
-def save_card_to_deck(deck_name, card_data):
-      with open(f'{deck_name}.json','w') as deck_file:
-          json.dump(card_data,deck_file)
-          
-     #search_dictionary = search.json()
 
+def save_card_to_deck(deck_name, card_data, username):
+     user_folder = os.path.join(os.getcwd(), username)
+     deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
+     
+     if not os.path.exists(deck_file_path):
+          print(f"Deck '{deck_name}' does not exist. Creating new deck file...")
+          create_deck_file(deck_name, username)
+          try:
+               with open(deck_file_path, 'r') as deck_file:
+                    try:
+                         deck = json.load(deck_file)
+                    except json.JSONDecodeError:
+                         deck = []
+          except FileNotFoundError:
+               deck = []
+     deck.append(card_data)
+     with open(deck_file_path, 'w') as deck_file:
+          json.dump(deck, deck_file, indent=4)
+     print(f'Card added successfully to {deck_name}.json')
 
 
 
@@ -337,8 +351,8 @@ def mode_stop():
 def mode_dbe(call_return,username,deck_name):
      #print('Mode was changed')
      inital_search_func(call_return)
-     save_card_to_deck(deck_name,call_return)
-     deck_size_check(deck_name)
+     save_card_to_deck(deck_name,username,call_return)
+     #deck_size_check(deck_name)
      #on_click_search_func(call_return)
      # add = save_card_to_deck(deckname, username, call_return)
 
@@ -407,7 +421,7 @@ def mode_search():
                mode_search()
                counter = 0
           elif again == '2':
-               mode_dbe(call_return,username,deck_name)
+               mode_dbe(deck_name,call_return,username)
                counter = 0
           elif again == '3':
                mode_stop()
