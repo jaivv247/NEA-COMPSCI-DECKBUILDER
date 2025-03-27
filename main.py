@@ -29,13 +29,8 @@ def j_compact_print(obj):
      text = json.dumps(obj,separators=(',',':'))
      return text
 
-
-
-
-
-
-
 #Deck building environment
+#deck creation function
 def create_deck_file(deck_name, username):
      user_folder = os.path.join(os.getcwd(), username)
      if not os.path.exists(user_folder):
@@ -46,9 +41,10 @@ def create_deck_file(deck_name, username):
           json.dump([], deck_file)
           print(f"Deck '{deck_name}' created successfully.")
 
+#inital search function
 def inital_search_func(search):
-     search_data = json.loads(j_compact_print(search.json()))
-
+     search_data =json.loads(j_compact_print(search.json()))
+     #print(search_data)
      if "data" not in search_data:
           print("No valid card data found.")
           return
@@ -63,9 +59,9 @@ def inital_search_func(search):
      j_pretty_print(extracted_data)
      return extracted_data
 
-
+#eextra information search function
 def on_click_search_func(search):
-     search_data = json.loads(j_compact_print(search.json()))
+     search_data =j_compact_print(search.json())
 
      if "data" not in search_data:
           print("No valid card data found.")
@@ -81,37 +77,37 @@ def on_click_search_func(search):
      j_pretty_print(extracted_data)
      return extracted_data
 
+#limit checker
 def deck_size_check(deck_name):
      with open(f'{deck_name}.json','r') as deck_file:
           number_of_cards = deck_file.readlines()
           print(len(number_of_cards))
 
-
-def save_card_to_deck(deck_name, card_data, username):
+#save function
+def save_card_to_deck(card_data, username,deck_name):
      user_folder = os.path.join(os.getcwd(), username)
      deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
-     
+
      if not os.path.exists(deck_file_path):
           print(f"Deck '{deck_name}' does not exist. Creating new deck file...")
           create_deck_file(deck_name, username)
-          try:
-               with open(deck_file_path, 'r') as deck_file:
-                    try:
-                         deck = json.load(deck_file)
-                    except json.JSONDecodeError:
-                         deck = []
-          except FileNotFoundError:
-               deck = []
-     deck.append(card_data)
+     
+     try:
+          with open(deck_file_path, 'r') as deck_file:
+               try:
+                    deck = json.load(deck_file)
+                    if not isinstance(deck, list):
+                              deck = []
+               except json.JSONDecodeError:
+                    deck = []
+     except FileNotFoundError:
+          deck = []
+     
+
+     deck.append(json.dumps(card_data.json())) #I only know 50% of why this line works
      with open(deck_file_path, 'w') as deck_file:
           json.dump(deck, deck_file, indent=4)
      print(f'Card added successfully to {deck_name}.json')
-
-
-
-
-
-
 
 #DATABASE PARSE CALL CODE
 def database_call(search_dict):                 
@@ -124,12 +120,6 @@ def database_call(search_dict):
                     print(f'error:{r.status_code}')
           except:
                print('error')
-
-
-
-
-
-
 
 #ERROR FUNCTION MAPPED TO VALIDATION
 def error(card_parameter): #this funtion is the mapped to each error and runs whenever an error occurs for the card parameters
@@ -170,13 +160,6 @@ def error(card_parameter): #this funtion is the mapped to each error and runs wh
                case _: 
                     print('no parameter passed, try again')
           
-
-
-
-
-
-
-
 #FUNCTION TO SANITISE SEARCHES INTO API
 def card_parser_validator(card_parameter , corresponding_variable):
      card_parameter = card_parameter.lower()
@@ -317,16 +300,6 @@ def card_parser_validator(card_parameter , corresponding_variable):
           error('general')
           return False
 
-
-
-
-
-
-
-
-
-
-
 # MODE CODES TO RUN WHEN MODES CHANGE
 def mode_open(username):
      global deck_name
@@ -344,14 +317,13 @@ def mode_open(username):
      else:
           mode_search()
 
-
 def mode_stop():
      quit()
 
 def mode_dbe(call_return,username,deck_name):
      #print('Mode was changed')
      inital_search_func(call_return)
-     save_card_to_deck(deck_name,username,call_return)
+     save_card_to_deck(call_return,username,deck_name)
      #deck_size_check(deck_name)
      #on_click_search_func(call_return)
      # add = save_card_to_deck(deckname, username, call_return)
@@ -398,7 +370,9 @@ def mode_search():
 
      parameter_number = int(parameter_number)
 
-     for _ in range(parameter_number):
+     Flag = False
+     for i in range(parameter_number):
+          #while Flag == False:
           card_parameter = input('Param: ') # takes in parameter for search
           corresponding_variable = input('Variable: ') # the variable correspoding to the parameter that the user wants to actually search for like a specific card type or card.
           validate = card_parser_validator(card_parameter,corresponding_variable)
@@ -406,9 +380,10 @@ def mode_search():
                search_dict[card_parameter] = corresponding_variable
      if search_dict:
           call_return = database_call(search_dict)
+          #Flag = True
      else:
           print('No valid parameters provided. Please enter valid search terms.')
-          parameter_number +=1
+
      counter = 1
      while counter > 0:
           again = input('''Would you like to search again?
@@ -421,15 +396,13 @@ def mode_search():
                mode_search()
                counter = 0
           elif again == '2':
-               mode_dbe(deck_name,call_return,username)
+               mode_dbe(call_return,username,deck_name)
                counter = 0
           elif again == '3':
                mode_stop()
                counter = 0
           else:
                print('incorrect response')
-
-
 
 #FUNCTION THAT CHANGES MODES
 def mode_changer():
@@ -455,12 +428,6 @@ def mode_changer():
                     case 'open':
                          mode_open(username)
      
-
-
-
-
-
-
 #USER CREATION AND LOGIN SYSTEM
 def read_accounts(): #reads the account file and splits the username and password of the user
      if not os.path.exists('Accounts_NEA.txt'):
@@ -535,13 +502,6 @@ def create_accounts():#(sender,data):
                       
             counter = -1
      login()
-
-
-
-
-
-
-
 
 #terminal side UI for test
 
