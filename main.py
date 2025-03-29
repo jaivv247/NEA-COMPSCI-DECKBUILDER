@@ -103,8 +103,8 @@ def save_card_to_deck(card_data, username,deck_name):
      except FileNotFoundError:
           deck = []
      
-
-     deck.append(json.dumps(card_data.json())) #I only know 50% of why this line works
+     deck.append(card_data.json())
+     #deck.append(json.dumps(card_data.json())) #I only know 50% of why this line works
      with open(deck_file_path, 'w') as deck_file:
           json.dump(deck, deck_file, indent=4)
      print(f'Card added successfully to {deck_name}.json')
