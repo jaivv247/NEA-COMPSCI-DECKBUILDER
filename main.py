@@ -370,19 +370,22 @@ def mode_search():
 
      parameter_number = int(parameter_number)
 
-     Flag = False
      for i in range(parameter_number):
-          #while Flag == False:
-          card_parameter = input('Param: ') # takes in parameter for search
-          corresponding_variable = input('Variable: ') # the variable correspoding to the parameter that the user wants to actually search for like a specific card type or card.
-          validate = card_parser_validator(card_parameter,corresponding_variable)
-          if validate == True:
-               search_dict[card_parameter] = corresponding_variable
+          Flag = False
+          while Flag == False:
+               card_parameter = input('Param: ') # takes in parameter for search
+               corresponding_variable = input('Variable: ') # the variable correspoding to the parameter that the user wants to actually search for like a specific card type or card.
+               if card_parser_validator(card_parameter,corresponding_variable):
+                    search_dict[card_parameter] = corresponding_variable
+                    break
+               else:
+                    print('Invalid parameter please try again')
+
      if search_dict:
           call_return = database_call(search_dict)
-          #Flag = True
      else:
           print('No valid parameters provided. Please enter valid search terms.')
+
 
      counter = 1
      while counter > 0:
