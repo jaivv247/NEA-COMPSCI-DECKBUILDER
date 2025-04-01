@@ -43,7 +43,7 @@ def create_deck_file(deck_name, username):
 
 #inital search function
 def inital_search_func(search):
-     search_data =json.loads(j_compact_print(search.json()))
+     search_data =json.loads(search.json())
      #print(search_data)
      if "data" not in search_data:
           print("No valid card data found.")
@@ -77,11 +77,6 @@ def on_click_search_func(search):
      j_pretty_print(extracted_data)
      return extracted_data
 
-#limit checker
-def deck_size_check(deck_name):
-     with open(f'{deck_name}.json','r') as deck_file:
-          number_of_cards = deck_file.readlines()
-          print(len(number_of_cards))
 
 #save function
 def save_card_to_deck(card_data, username,deck_name):
@@ -108,6 +103,33 @@ def save_card_to_deck(card_data, username,deck_name):
      with open(deck_file_path, 'w') as deck_file:
           json.dump(deck, deck_file, indent=4)
      print(f'Card added successfully to {deck_name}.json')
+
+
+#limit checker
+def deck_check(username,deck_name):
+     user_folder = os.path.join(os.getcwd(), username)
+     deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
+     with open(deck_file_path,'r') as deck_file:
+          try:
+               deck = json.load(deck_file)
+               if deck:
+                    print('there are cards in the deck')
+          except:
+               print('There are no cards within the deck please add them')
+               mode_search()
+     
+
+     deck = json.dumps(deck)
+
+     if "data" not in deck:
+          print("No valid card data found.")
+          mode_changer()
+     keys_to_extract = ['name']
+     extracted_data = []
+     for card in deck["data"]:
+          filtered_card = {key: card[key] for key in keys_to_extract if key in card}
+          extracted_data.append(filtered_card)
+     print(extracted_data)
 
 #DATABASE PARSE CALL CODE
 def database_call(search_dict):                 
@@ -323,8 +345,8 @@ def mode_stop():
 def mode_dbe(call_return,username,deck_name):
      #print('Mode was changed')
      inital_search_func(call_return)
-     save_card_to_deck(call_return,username,deck_name)
-     #deck_size_check(deck_name)
+     #save_card_to_deck(call_return,username,deck_name)
+     deck_check(username,deck_name)
      #on_click_search_func(call_return)
      # add = save_card_to_deck(deckname, username, call_return)
 
