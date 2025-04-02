@@ -115,6 +115,8 @@ def deck_check(username, deck_name):
      deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
      extracted_data_name = []
      extracted_data_type = []
+     extra_deck = []
+     main_deck = []
      global deck_legal
      deck_legal = True
 
@@ -132,6 +134,7 @@ def deck_check(username, deck_name):
                               extracted_data_name.append(card_name)
                               card_type = card_data.get('type','Unknown')
                               extracted_data_type.append(card_type)
+                              full_list = [extracted_data_name,extracted_data_type]
                     else:
                          print("Warning: Invalid card format")
                
@@ -149,6 +152,12 @@ def deck_check(username, deck_name):
                if amount_in_deck  < 40 :
                     print('There are too little cards in your deck for it to be legal')
                     deck_legal = False
+               for i in full_list:
+                    if full_list[i][1] in list_of_extradeck_monsters:
+                         extra_deck.append(full_list[i][0])
+                    else:
+                         main_deck.append(full_list[i][0])
+               print(main_deck)
                
           else:
                print("Deck is empty.")
