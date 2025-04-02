@@ -11,6 +11,7 @@ global deck_name
 mode = ''
 global deck_legal
 deck_legal = True
+
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
 list_of_extradeck_monsters = ['FUSION MONSTER','LINK MONSTER','PENDULUM EFFECT FUSION MONSTER','SYNCHRO MONSTER','SYNCHRO PENDULUM EFFECT MONSTER','SYNCHRO TUNER MONSTER','XYZ MONSTER','XYZ PENDULUM EFFECT MONSTER']
 list_of_modes = ['search','dbe','dev','stop','create','menu','open']
@@ -108,6 +109,9 @@ def save_card_to_deck(card_data, username,deck_name):
           json.dump(deck, deck_file, indent=4)
      print(f'Card added successfully to {deck_name}.json')
 
+def delete_card_from_deck(username,deck_name):
+     user_folder = os.path.join(os.getcwd(), username)
+     deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
 
 #limit checker
 def deck_check(username, deck_name):
@@ -134,37 +138,87 @@ def deck_check(username, deck_name):
                               extracted_data_name.append(card_name)
                               card_type = card_data.get('type','Unknown')
                               extracted_data_type.append(card_type)
-                              full_list = [extracted_data_name,extracted_data_type]
-                    else:
+                    else: 
                          print("Warning: Invalid card format")
-               
-               print(extracted_data_name)
+
+               full_list = list(zip(extracted_data_name, extracted_data_type))
+
+               # print('----- FULL 2D ARRAY------')
+               # print(full_list)
+               # print('---- NAMES ONLY-----')
+               # print(extracted_data_name)
+
                card_counts = Counter(extracted_data_name)
                amount_in_deck = len(extracted_data_name)
 
                for card, count in card_counts.items():
                     if count > 3:
-                         print(f'{card}''more than three time please go down to limit')
                          deck_legal = False
+                         reason = 'too many of card'
+
                if amount_in_deck > 75 :
-                    print('There are too many cards in your deck, not proper for use')
                     deck_legal = False
+                    reason = 'too many in total'
+                    
                if amount_in_deck  < 40 :
-                    print('There are too little cards in your deck for it to be legal')
                     deck_legal = False
-               for i in full_list:
-                    if full_list[i][1] in list_of_extradeck_monsters:
-                         extra_deck.append(full_list[i][0])
+                    reason = 'too little in total'
+
+               for name,type_ in full_list:
+                    if type_.upper() in list_of_extradeck_monsters:
+                         extra_deck.append((name,type_))
                     else:
-                         main_deck.append(full_list[i][0])
-               print(main_deck)
+                         main_deck.append((name,type_))
                
+               print('"\n--- Main Deck Cards ---"')
+               for card in main_deck:
+                    print(card[0])
+               
+               print('"\n--- Extra Deck Cards ---"')
+               for card in extra_deck:
+                    print(card[0])
+               
+               if len(main_deck) > 60 or len(main_deck) < 40:
+                    deck_legal = False
+                    reason = 'card number in main invalid'
+               if len(extra_deck) > 15:
+                    deck_legal = False
+                    reason = 'card number in extra invalid'
           else:
                print("Deck is empty.")
                mode_search()
      except (FileNotFoundError, json.JSONDecodeError):
           print('There are no cards within the deck. Please add them.')
           mode_search()
+
+     counter = 1
+     while counter > 0:
+          again = input('''Would you like to check if deck is legal?
+          click 1 as yes 
+          click 2 as no
+          : ''')
+
+          if again == '1':
+               print('Your deck being legal is', deck_legal)
+               match reason:
+                    case 'too many of card':
+                         for card, count in card_counts.items():
+                              if count > 3:
+                                   print(f'{card}', 'in deck more than three time please go down to limit')
+                    case 'too many in total':
+                         print('There are too many cards in your deck, not proper for use')
+                    case 'too little in total':
+                         print('There are too little cards in your deck for it to be legal')
+                    case 'card number in main invalid':
+                         print('Number of cards in main deck is invalid')
+                    case 'card number in extra invalid':
+                         print('Number of cards in extra deck is invalid')
+
+
+          elif again == '2':
+               counter = 0
+          else:
+               print('incorrect response')
 
 
 #DATABASE PARSE CALL CODE
@@ -381,7 +435,21 @@ def mode_stop():
 def mode_dbe(call_return,username,deck_name):
      #print('Mode was changed')
      inital_search_func(call_return)
-     save_card_to_deck(call_return,username,deck_name)
+     counter_for_cards = 1
+     while counter_for_cards > 0:
+          again = input('''Would you like to add the cards searched or delete the last card added?
+          click 1 to add
+          click 2 to delete
+          : ''')
+
+          if again == '1':
+               save_card_to_deck(call_return,username,deck_name)
+               counter_for_cards = 0
+          elif again == '2':
+               mode_stop()
+               counter_for_cards = 0
+          else:
+               print('incorrect response')
      deck_check(username,deck_name)
      #on_click_search_func(call_return)
      # add = save_card_to_deck(deckname, username, call_return)
@@ -389,8 +457,8 @@ def mode_dbe(call_return,username,deck_name):
      # if add == False:
      #      mode = 'create'
 
-     counter = 1
-     while counter > 0:
+     counter_for_modes = 1
+     while counter_for_modes > 0:
           again = input('''Would you like to search again?
           click 1 to search again 
           click 2 to stop
@@ -398,10 +466,10 @@ def mode_dbe(call_return,username,deck_name):
 
           if again == '1':
                mode_search()
-               counter = 0
+               counter_for_modes = 0
           elif again == '2':
                mode_stop()
-               counter = 0
+               counter_for_modes = 0
           else:
                print('incorrect response')
 
