@@ -109,9 +109,35 @@ def save_card_to_deck(card_data, username,deck_name):
           json.dump(deck, deck_file, indent=4)
      print(f'Card added successfully to {deck_name}.json')
 
-def delete_card_from_deck(username,deck_name):
+def delete_card_from_deck(username,deck_name,card_name_to_remove):
      user_folder = os.path.join(os.getcwd(), username)
      deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
+     try:
+          with open(deck_file_path, 'r') as deck_file:
+               deck = json.load(deck_file)
+          card_found = False
+          
+          for card in deck:
+               if 'data' in card and isinstance(card['data'], list):
+                    for i, card_data in enumerate(card['data']):
+                         if card_data.get('name', '').lower() == card_name_to_remove.lower():
+                              del card['data'][i]
+                              card_found = True
+                              break
+               if card_found:
+                    break
+          
+          deck = [card for card in deck if card.get('data')]
+
+          with open(deck_file_path, 'w') as deck_file:
+               json.dump(deck, deck_file, indent=4)
+
+          if card_found:
+               print(f"Removed one instance of '{card_name_to_remove}' from the deck.")
+          else:
+               print(f"Card '{card_name_to_remove}' not found in '{deck_name}'.")
+     except (FileNotFoundError, json.JSONDecodeError):
+          print("Error: Could not open or read the deck file.")
 
 #limit checker
 def deck_check(username, deck_name):
@@ -193,7 +219,7 @@ def deck_check(username, deck_name):
 
      counter = 1
      while counter > 0:
-          again = input('''Would you like to check if deck is legal?
+          again = input('''\n Would you like to check if deck is legal?
           click 1 as yes 
           click 2 as no
           : ''')
@@ -213,8 +239,6 @@ def deck_check(username, deck_name):
                          print('Number of cards in main deck is invalid')
                     case 'card number in extra invalid':
                          print('Number of cards in extra deck is invalid')
-
-
           elif again == '2':
                counter = 0
           else:
@@ -446,7 +470,8 @@ def mode_dbe(call_return,username,deck_name):
                save_card_to_deck(call_return,username,deck_name)
                counter_for_cards = 0
           elif again == '2':
-               mode_stop()
+               card_name_to_remove = input('What is the exact name of the card you want to remove: ')
+               delete_card_from_deck(username,deck_name,card_name_to_remove)
                counter_for_cards = 0
           else:
                print('incorrect response')
