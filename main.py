@@ -534,6 +534,8 @@ def mode_search():
           while Flag == False:
                card_parameter = input('Param: ') # takes in parameter for search
                corresponding_variable = input('Variable: ') # the variable correspoding to the parameter that the user wants to actually search for like a specific card type or card.
+               card_parameter = card_parameter.lower()
+               corresponding_variable = corresponding_variable.lower()
                if card_parser_validator(card_parameter,corresponding_variable):
                     search_dict[card_parameter] = corresponding_variable
                     break
