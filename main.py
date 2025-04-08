@@ -5,10 +5,15 @@ import os
 from sys import argv
 import dearpygui.dearpygui as dpg
 import time
-
+from collections import Counter
 global mode
+global deck_name
 mode = ''
+global deck_legal
+deck_legal = True
+
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
+list_of_extradeck_monsters = ['FUSION MONSTER','LINK MONSTER','PENDULUM EFFECT FUSION MONSTER','SYNCHRO MONSTER','SYNCHRO PENDULUM EFFECT MONSTER','SYNCHRO TUNER MONSTER','XYZ MONSTER','XYZ PENDULUM EFFECT MONSTER']
 list_of_modes = ['search','dbe','dev','stop','create','menu','open']
 list_of_races = ['aqua','beast','beast-warrior','creator-god','cyberse','dinosaur','divine-beast','dragon','fairy','fiend','fish','insect','machine','plant','psychic','pyro','reptile','rock','sea serpent','spellcaster','thunder','warrior','winged beast','wyrm','zombie','normal','field','equip','continuous','quick-play','ritual','normal','continuous','counter']
 list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist'] #LIST OF ACCEPTABLE PARAMETERS
@@ -43,7 +48,7 @@ def create_deck_file(deck_name, username):
 
 #inital search function
 def inital_search_func(search):
-     search_data =json.loads(search.json())
+     search_data =json.loads(j_compact_print(search.json()))
      #print(search_data)
      if "data" not in search_data:
           print("No valid card data found.")
@@ -104,32 +109,141 @@ def save_card_to_deck(card_data, username,deck_name):
           json.dump(deck, deck_file, indent=4)
      print(f'Card added successfully to {deck_name}.json')
 
-
-#limit checker
-def deck_check(username,deck_name):
+def delete_card_from_deck(username,deck_name,card_name_to_remove):
      user_folder = os.path.join(os.getcwd(), username)
      deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
-     with open(deck_file_path,'r') as deck_file:
-          try:
+     try:
+          with open(deck_file_path, 'r') as deck_file:
                deck = json.load(deck_file)
-               if deck:
-                    print('there are cards in the deck')
-          except:
-               print('There are no cards within the deck please add them')
+          card_found = False
+          
+          for card in deck:
+               if 'data' in card and isinstance(card['data'], list):
+                    for i, card_data in enumerate(card['data']):
+                         if card_data.get('name', '').lower() == card_name_to_remove.lower():
+                              del card['data'][i]
+                              card_found = True
+                              break
+               if card_found:
+                    break
+          
+          deck = [card for card in deck if card.get('data')]
+
+          with open(deck_file_path, 'w') as deck_file:
+               json.dump(deck, deck_file, indent=4)
+
+          if card_found:
+               print(f"Removed one instance of '{card_name_to_remove}' from the deck.")
+          else:
+               print(f"Card '{card_name_to_remove}' not found in '{deck_name}'.")
+     except (FileNotFoundError, json.JSONDecodeError):
+          print("Error: Could not open or read the deck file.")
+
+#limit checker
+def deck_check(username, deck_name):
+     user_folder = os.path.join(os.getcwd(), username)
+     deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
+     extracted_data_name = []
+     extracted_data_type = []
+     extra_deck = []
+     main_deck = []
+     global deck_legal
+     deck_legal = True
+
+     try:
+          with open(deck_file_path, 'r') as deck_file:
+               deck = json.load(deck_file)
+
+          if deck: 
+               print('There are cards in the deck')
+
+               for card in deck:
+                    if 'data' in card and isinstance(card['data'], list):
+                         for card_data in card['data']:
+                              card_name = card_data.get('name', 'Unknown')
+                              extracted_data_name.append(card_name)
+                              card_type = card_data.get('type','Unknown')
+                              extracted_data_type.append(card_type)
+                    else: 
+                         print("Warning: Invalid card format")
+
+               full_list = list(zip(extracted_data_name, extracted_data_type))
+
+               # print('----- FULL 2D ARRAY------')
+               # print(full_list)
+               # print('---- NAMES ONLY-----')
+               # print(extracted_data_name)
+
+               card_counts = Counter(extracted_data_name)
+               amount_in_deck = len(extracted_data_name)
+
+               for card, count in card_counts.items():
+                    if count > 3:
+                         deck_legal = False
+                         reason = 'too many of card'
+
+               if amount_in_deck > 75 :
+                    deck_legal = False
+                    reason = 'too many in total'
+                    
+               if amount_in_deck  < 40 :
+                    deck_legal = False
+                    reason = 'too little in total'
+
+               for name,type_ in full_list:
+                    if type_.upper() in list_of_extradeck_monsters:
+                         extra_deck.append((name,type_))
+                    else:
+                         main_deck.append((name,type_))
+               
+               print('"\n--- Main Deck Cards ---"')
+               for card in main_deck:
+                    print(card[0])
+               
+               print('"\n--- Extra Deck Cards ---"')
+               for card in extra_deck:
+                    print(card[0])
+               
+               if len(main_deck) > 60 or len(main_deck) < 40:
+                    deck_legal = False
+                    reason = 'card number in main invalid'
+               if len(extra_deck) > 15:
+                    deck_legal = False
+                    reason = 'card number in extra invalid'
+          else:
+               print("Deck is empty.")
                mode_search()
-     
+     except (FileNotFoundError, json.JSONDecodeError):
+          print('There are no cards within the deck. Please add them.')
+          mode_search()
 
-     deck = json.dumps(deck)
+     counter = 1
+     while counter > 0:
+          again = input('''\n Would you like to check if deck is legal?
+          click 1 as yes 
+          click 2 as no
+          : ''')
 
-     if "data" not in deck:
-          print("No valid card data found.")
-          mode_changer()
-     keys_to_extract = ['name']
-     extracted_data = []
-     for card in deck["data"]:
-          filtered_card = {key: card[key] for key in keys_to_extract if key in card}
-          extracted_data.append(filtered_card)
-     print(extracted_data)
+          if again == '1':
+               print('Your deck being legal is', deck_legal)
+               match reason:
+                    case 'too many of card':
+                         for card, count in card_counts.items():
+                              if count > 3:
+                                   print(f'{card}', 'in deck more than three time please go down to limit')
+                    case 'too many in total':
+                         print('There are too many cards in your deck, not proper for use')
+                    case 'too little in total':
+                         print('There are too little cards in your deck for it to be legal')
+                    case 'card number in main invalid':
+                         print('Number of cards in main deck is invalid')
+                    case 'card number in extra invalid':
+                         print('Number of cards in extra deck is invalid')
+          elif again == '2':
+               counter = 0
+          else:
+               print('incorrect response')
+
 
 #DATABASE PARSE CALL CODE
 def database_call(search_dict):                 
@@ -345,7 +459,22 @@ def mode_stop():
 def mode_dbe(call_return,username,deck_name):
      #print('Mode was changed')
      inital_search_func(call_return)
-     #save_card_to_deck(call_return,username,deck_name)
+     counter_for_cards = 1
+     while counter_for_cards > 0:
+          again = input('''Would you like to add the cards searched or delete the last card added?
+          click 1 to add
+          click 2 to delete
+          : ''')
+
+          if again == '1':
+               save_card_to_deck(call_return,username,deck_name)
+               counter_for_cards = 0
+          elif again == '2':
+               card_name_to_remove = input('What is the exact name of the card you want to remove: ')
+               delete_card_from_deck(username,deck_name,card_name_to_remove)
+               counter_for_cards = 0
+          else:
+               print('incorrect response')
      deck_check(username,deck_name)
      #on_click_search_func(call_return)
      # add = save_card_to_deck(deckname, username, call_return)
@@ -353,8 +482,8 @@ def mode_dbe(call_return,username,deck_name):
      # if add == False:
      #      mode = 'create'
 
-     counter = 1
-     while counter > 0:
+     counter_for_modes = 1
+     while counter_for_modes > 0:
           again = input('''Would you like to search again?
           click 1 to search again 
           click 2 to stop
@@ -362,10 +491,10 @@ def mode_dbe(call_return,username,deck_name):
 
           if again == '1':
                mode_search()
-               counter = 0
+               counter_for_modes = 0
           elif again == '2':
                mode_stop()
-               counter = 0
+               counter_for_modes = 0
           else:
                print('incorrect response')
 
@@ -387,6 +516,14 @@ def mode_search():
      search_dict = {}
      parameter_number = input('how many parameters would you like to pass?: ')
      while not parameter_number.isdigit():
+               print('Error input was not a number')
+               parameter_number = input('how many parameters would you like to pass?: ')
+
+     parameter_number = int(parameter_number)
+
+     while parameter_number > 15 :
+          print('Too many parameters retry')
+          while not parameter_number.isdigit():
                print('Error input was not a number')
                parameter_number = input('how many parameters would you like to pass?: ')
 
@@ -542,77 +679,3 @@ while check == False :
      elif entry == '2':
           login()
           check = True
-
-
-
-          
-
-
-
-
-
-
-
-
-
-
-
-# ##GUI set up code
-
-# dpg.create_context()
-# dpg.configure_app(docking=True, docking_space=True, load_init_file="custom_layout.ini") # must be called before create_viewport
-# dpg.create_viewport(title='Yugioh duel matrix',width=1920,height=1080)
-# dpg.setup_dearpygui()
-
-# # generate IDs - the IDs are used by the init file, they must be the
-# #                same between sessions
-# left_window = dpg.generate_uuid()
-# right_window = dpg.generate_uuid()
-# top_window = dpg.generate_uuid()
-# bottom_window = dpg.generate_uuid()
-# center_window = dpg.generate_uuid()
-# param =''
-
-
-
-
-# def hide_window(param):
-#      dpg.configure_item(param,show=True)
-
-# def show_window(param):
-#      dpg.configure_item(param,show=True)
-
-
-# def window_selection(sender,data):
-#      print(dpg.get_value('select window'))
-#      param= dpg.get_value('select window')
-#      hide_window(dpg.get_value('select window'))
-#      time.sleep(5)
-#      show_window(dpg.get_value('select window'))
-     
-
-
-
-# dpg.add_window(label="Left", tag=left_window,show=True,no_move=True)
-#      #dpg.set_item_pos('left_window',pos=(1000,0))
-# dpg.add_window(label="Right", tag=right_window,show=True,no_move=True)
-# dpg.add_window(label="Top", tag=top_window,show=True,no_move=True)
-# dpg.add_window(label="Bottom", tag=bottom_window,show=True,no_move=True)
-# with dpg.window(label="Center", tag=center_window,show=True,no_move=True):
-#      dpg.add_input_text(label='Select window',on_enter=True,callback=window_selection,tag='select window')
-#      dpg.add_button(label='Click',callback=window_selection)
-     
-
-
-
-# #dpg.set_primary_window('center_window',True)
-
-
-
-
-# # main loop
-# dpg.show_viewport()
-# while dpg.is_dearpygui_running():
-#     dpg.render_dearpygui_frame()  
-
-# dpg.destroy_context()
