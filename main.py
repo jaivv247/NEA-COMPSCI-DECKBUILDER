@@ -6,15 +6,17 @@ from sys import argv
 import dearpygui.dearpygui as dpg
 import time
 from collections import Counter
+
 global mode
 global deck_name
 mode = ''
 global deck_legal
 deck_legal = True
 
+
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
 list_of_extradeck_monsters = ['FUSION MONSTER','LINK MONSTER','PENDULUM EFFECT FUSION MONSTER','SYNCHRO MONSTER','SYNCHRO PENDULUM EFFECT MONSTER','SYNCHRO TUNER MONSTER','XYZ MONSTER','XYZ PENDULUM EFFECT MONSTER']
-list_of_modes = ['search','dbe','dev','stop','create','menu','open']
+list_of_modes = ['search','dbe','stop','create','open']
 list_of_races = ['aqua','beast','beast-warrior','creator-god','cyberse','dinosaur','divine-beast','dragon','fairy','fiend','fish','insect','machine','plant','psychic','pyro','reptile','rock','sea serpent','spellcaster','thunder','warrior','winged beast','wyrm','zombie','normal','field','equip','continuous','quick-play','ritual','normal','continuous','counter']
 list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist'] #LIST OF ACCEPTABLE PARAMETERS
 list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
@@ -24,6 +26,35 @@ list_of_formats = ['TCG','OCG','GOAT']
 
 script_directory = os.path.dirname(os.path.abspath(argv[0])) #change file path to current file to ignore path to file, only needs to change path from file
 os.chdir(script_directory)
+
+#GUI intializing CODE
+
+
+dpg.create_context()
+dpg.configure_app(docking=True, docking_space=True, load_init_file="custom_layout.ini")
+dpg.create_viewport()
+
+
+def hide_window(name):
+     if dpg.does_item_exist(name):
+          #print(name)
+          dpg.hide_item(name)
+     # else:
+     #      error('window')
+
+def delete_window(name):
+     if dpg.does_item_exist(name):
+          #print(name)
+          dpg.delete_item(name)
+     # else:
+     #      error('window')
+
+def show_window(name):
+     if dpg.does_item_exist(name):
+          #print(name)
+          dpg.show_item(name)
+     # else:
+     #      error('window')
 
 #THESE FUNCTIONS ALLOW FOR PRINTING OF THE REQUEST SENT INTO THE API
 def j_pretty_print(obj):
@@ -251,6 +282,10 @@ def database_call(search_dict):
                r = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php',params=search_dict)
                if r.status_code == 200:
                     j_pretty_print(r.json())
+
+                    with dpg.window(label='Search result',tag='search_result'):
+                         dpg.add_text('your search result is')
+                         dpg.add_text(f'{r}')
                     return r
                else:
                     print(f'error:{r.status_code}')
@@ -293,6 +328,8 @@ def error(card_parameter): #this funtion is the mapped to each error and runs wh
                     print('Archetype not in set, please try again')
                case 'banlist':
                     print('The banlist for this format does not exist,try again')
+               case 'window':
+                    print('The window you have called does not exist')
                case _: 
                     print('no parameter passed, try again')
           
@@ -437,28 +474,44 @@ def card_parser_validator(card_parameter , corresponding_variable):
           return False
 
 # MODE CODES TO RUN WHEN MODES CHANGE
-def mode_open(username):
+
+
+def mode_open_GUI():
+     if dpg.does_item_exist('mode_choose'):
+          delete_window('mode_choose')
+     with dpg.window(label='Opening deck',tag='open_deck'):
+          dpg.add_text('please delete and ignore the other window library side error')
+          dpg.add_input_text(label='enter deck name:',tag='deck_name')
+          dpg.add_button(label='enter',tag='enter_open',callback=mode_open,user_data=username)
+
+def mode_open(sender,app_data,user_data):
      global deck_name
-     user_folder = os.path.join(os.getcwd(), username)
+     user_folder = os.path.join(os.getcwd(), user_data)
      if not os.path.exists(user_folder):
-          print(f"User folder '{username}' does not exist.Deck creation not possible")
-          mode_changer()
-     
-     deck_name = input('What is the name of the deck you would like to open?: ')
+          print(f"User folder '{user_data}' does not exist. Deck creation not possible")
+
+     deck_name = dpg.get_value('deck_name')
 
      deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
      if not os.path.exists(deck_file_path):
-          print('deck does not exist please create it')
-          mode_create(username)
+          with dpg.window(label='Deck does not exist',tag='deck_unreal'):
+               dpg.add_text('deck does not exist please create it')
+               time.sleep(1)
+               mode_create_GUI()
+               delete_window('deck_unreal')
      else:
-          mode_search()
+          with dpg.window(label='Deck opened',tag='open_success'):
+               dpg.add_text('deck opened successfully')
+               time.sleep(1)
+               delete_window('open_success')
+          mode_search_GUI(0)
 
-def mode_stop():
+def mode_stop(sender):
      quit()
 
 def mode_dbe(call_return,username,deck_name):
      #print('Mode was changed')
-     inital_search_func(call_return)
+     on_click_search_func(call_return)
      counter_for_cards = 1
      while counter_for_cards > 0:
           again = input('''Would you like to add the cards searched or delete the last card added?
@@ -498,97 +551,159 @@ def mode_dbe(call_return,username,deck_name):
           else:
                print('incorrect response')
 
-def mode_create(username):
-     global deck_name
-     deck_name = input('what is the name of your deck: ')
+def mode_create_GUI():
+     if dpg.does_item_exist('mode_choose'):
+          delete_window('mode_choose')
+     if dpg.does_item_exist('open_deck'):
+          delete_window('open_deck')
+     with dpg.window(label='deck creation',tag='deck_create'):
+          dpg.add_text('please delete and ignore the other window library side error')
+          dpg.add_input_text(label='enter deck name: ',tag='deck_name')
+          dpg.add_button(label='enter',tag='enter_create',callback=mode_create,user_data=username)
 
-     user_folder = os.path.join(os.getcwd(), username)
+
+def mode_create(sender,app_data,user_data):
+     global deck_name
+     deck_name = dpg.get_value('deck_name')
+
+     user_folder = os.path.join(os.getcwd(),user_data)
 
      deck_file_path = os.path.join(user_folder, f"{deck_name}.json")
      if os.path.exists(deck_file_path):
-        print(f"Deck '{deck_name}' already exists.")
-        mode_create(username)
+        with dpg.window(label='Deck with that name exists',tag='deck_isrealalr'):
+             dpg.add_text(f"Deck '{deck_name}' already exists. Please try again")
+             time.sleep(1)
+             delete_window('deck_isrealalr')
      else:
-          create_deck_file(deck_name,username)
+          with dpg.window(label='Deck made',tag='create_success'):
+               dpg.add_text('deck made successfully')
+               time.sleep(1)
+               delete_window('create_success')
+          create_deck_file(deck_name,user_data)
           mode_search()
 
-def mode_search():
-     search_dict = {}
-     parameter_number = input('how many parameters would you like to pass?: ')
+
+def mode_search_GUI(sender):
+     if dpg.does_item_exist('deck_create'):
+          delete_window('deck_create')
+     if dpg.does_item_exist('open_deck'):
+          delete_window('open_deck')
+     with dpg.item_handler_registry(tag='click_check') as handler:
+          dpg.add_item_clicked_handler(callback=mode_search_click_check)
+     with dpg.item_handler_registry(tag='visble_check') as handler:
+          dpg.add_item_visible_handler(callback=mode_search_visble_check)
+
+     with dpg.window(label='Getting param number',tag='param_num_ask',width=1920,height=1080):
+          dpg.add_input_text(label='how many parameters would you like to pass?:',tag='parameter_number')
+          dpg.add_button(label='enter',tag='enter_search',callback=mode_search)
+          dpg.add_button(label='dummy button',tag='dummy',show=False)
+
+     dpg.bind_item_handler_registry('enter_search','click_check')
+     dpg.bind_item_handler_registry('dummy','visble_check')
+
+def mode_search_click_check(sender):
+     p = mode_search_parameter_num()
+     if p.isdigit():
+          dpg.hide_item('parameter_number')
+          dpg.hide_item('enter_search')
+          dpg.show_item('dummy')
+
+def mode_search_visble_check(sender):
+     delete_window('param_num_ask')
+     with dpg.window(label='Taking in data',tag='search_data',width=1920,height=1080):
+          dpg.add_text('Please input card parameters and corresponding variables (to add new ones remove old and click enter again)')
+          dpg.add_text(f'The parameters passable are name,fname,id,type,atk,def,level,race,attribute,link,linkmarker,scale,cardset,archetype,banlist')
+          dpg.add_input_text(label='Parameter: ',tag='card_parameter')
+          dpg.add_input_text(label='Variable:',tag='corresponding_variable')
+          dpg.add_button(label='enter',tag='enter_search',callback=mode_search)
+
+def mode_search_parameter_num():
+     parameter_number = str(dpg.get_value('parameter_number'))
      while not parameter_number.isdigit():
-               print('Error input was not a number')
-               parameter_number = input('how many parameters would you like to pass?: ')
+               with dpg.window(label='Input error',tag='input_error'):
+                    dpg.add_text('Error input was not a number')
+                    time.sleep(1)
+                    delete_window('input_error')
 
      parameter_number = int(parameter_number)
-
+     
      while parameter_number > 15 :
-          print('Too many parameters retry')
+          with dpg.window(label='Input error',tag='input_error2'):
+                    dpg.add_text('Error input number greater 15')
+                    time.sleep(1)
+                    delete_window('input_error2')
           while not parameter_number.isdigit():
-               print('Error input was not a number')
-               parameter_number = input('how many parameters would you like to pass?: ')
+               with dpg.window(label='Input error',tag='input_error'):
+                    dpg.add_text('Error input was not a number')
+                    time.sleep(1)
+                    delete_window('input_error')
 
-     parameter_number = int(parameter_number)
+
+     return str(parameter_number)
+
+def mode_search(sender):
+     search_dict = {}
+     
+     parameter_number = int(mode_search_parameter_num())
 
      for i in range(parameter_number):
           Flag = False
           while Flag == False:
-               card_parameter = input('Param: ') # takes in parameter for search
-               corresponding_variable = input('Variable: ') # the variable correspoding to the parameter that the user wants to actually search for like a specific card type or card.
+               card_parameter = str(dpg.get_value('card_parameter'))# takes in parameter for search
+               corresponding_variable = str(dpg.get_value('corresponding_variable'))# the variable correspoding to the parameter that the user wants to actually search for like a specific card type or card.
                if card_parser_validator(card_parameter,corresponding_variable):
                     search_dict[card_parameter] = corresponding_variable
                     break
                else:
-                    print('Invalid parameter please try again')
+                    with dpg.window(label='Invalid param',tag='invalid_param'):
+                         dpg.add_text('Parameter was invalid please retry')
+                         time.sleep(1)
+                         delete_window('invalid_param')
 
      if search_dict:
           call_return = database_call(search_dict)
      else:
-          print('No valid parameters provided. Please enter valid search terms.')
+          with dpg.window(label='Invalid param',tag='invalid_param2'):
+                         dpg.add_text('Parameter was invalid please retry')
+                         time.sleep(1)
+                         delete_window('invalid_param2')
 
 
      counter = 1
      while counter > 0:
-          again = input('''Would you like to search again?
-          click 1 to search again 
-          click 2 to begin deck building
-          click 3 to stop
-          : ''')
-
-          if again == '1':
-               mode_search()
+          with dpg.window(label='post result',tag='post_result'):
+               dpg.add_text('search complete access deck builder or search again or close program?')
+               dpg.add_button(label='search again',tag='search_again',callback=mode_create_GUI)
+               dpg.add_button(label='begin deck build',tag='deck_build',callback=mode_dbe_GUI)
+               dpg.add_button(label='close program',tag='stop',callback=mode_stop)
                counter = 0
-          elif again == '2':
-               mode_dbe(call_return,username,deck_name)
-               counter = 0
-          elif again == '3':
-               mode_stop()
-               counter = 0
-          else:
-               print('incorrect response')
-
 #FUNCTION THAT CHANGES MODES
-def mode_changer():
+
+def mode_changer(sender,app_data,user_data):
      counter = 1
      while counter > 0 :
-          mode = input('what mode are we in: ').lower()
-          if mode not in list_of_modes:
+          #print(user_data)
+          if user_data not in list_of_modes:
                print('incorrect mode')
           else:
-               match mode:
+               match user_data:
                     case 'search':
                          mode_search()
                     case 'dbe':
                          mode_dbe()
-                    #'dev':
-                         # mode_dev()
                     case 'stop':
                          mode_stop()
                     case 'create':
-                         mode_create(username)
-                    #'menu':
-                         #mode_menu()
+                         mode_create_GUI()
                     case 'open':
-                         mode_open(username)
+                         mode_open_GUI()
+
+def mode_order():
+     delete_window('account_login')
+     with dpg.window(label='mode chosse',tag='mode_choose'):
+          dpg.add_text('Would you like to create a deck or open one?')
+          dpg.add_button(label='create',tag='deck_create',callback=mode_changer,user_data='create')
+          dpg.add_button(label='open',tag='deck_open',callback=mode_changer,user_data='open')
      
 #USER CREATION AND LOGIN SYSTEM
 def read_accounts(): #reads the account file and splits the username and password of the user
@@ -609,15 +724,25 @@ def read_accounts(): #reads the account file and splits the username and passwor
      
 
 #login function checks if username and password are in the program
-def login():#(sender,data):
+
+def login_GUI(sender):
+     if dpg.does_item_exist(entry_window) ==  True:
+          delete_window(entry_window)
+     if dpg.does_item_exist('account_create'):
+          delete_window('account_create')
+
+     with dpg.window(label='Login',tag='account_login',width=1920,height=1080):
+          dpg.add_input_text(label='Username: ',tag='username')
+          dpg.add_input_text(label='Password: ',tag='password')
+          dpg.add_button(label='Enter',callback=login)
+
+def login():
      counter = 1
      while counter > 0:
-          #ask_username = dpg.add_input_text(label='Username: ',default_value='Type here')
-          #ask_password = dpg.add_input_text(label='Password: ',default_value='Type here')
           global username
           global password
-          username = str(input('username: '))
-          password = str(input('password: '))
+          username = str(dpg.get_value('username'))
+          password = str(dpg.get_value('password'))
           logged_in = False
           logins = read_accounts()
           #print(logins)
@@ -628,128 +753,98 @@ def login():#(sender,data):
                          logged_in = True
           if logged_in == True:
                counter = 0
-               #dpg.add_text('Logged in successfully')
-               print('Logged in successfully')
-               mode_changer()
+               with dpg.window(label='Log in successful',tag='login_success'):
+                    dpg.add_text('Logged in successfully')
+                    time.sleep(1)
+                    delete_window('account_login')
+                    delete_window('login_success')
+                    mode_order()
           else:
-               #dpg.add_text('Username/Password incorrect')
-               print('Username/Password incorrect')
+               counter= 0
+               with dpg.window(label='Login fail',tag='login_fail'):
+                    dpg.add_text('Log in failed please try again or create an account')
+                    dpg.add_button(label='Create',callback=create_accounts_GUI)
+                    time.sleep(1)
+                    delete_window('login_fail')
+
           
 
 #reads the existing accounts and creates a new account based on that
-def create_accounts():#(sender,data):
+def create_accounts_GUI(sender):
+     with dpg.window(label='Create',tag='account_create',width=1920,height=1080):
+          delete_window(entry_window)
+          dpg.add_input_text(label='Username: ',tag='username')
+          dpg.add_input_text(label='Password: ',tag='password')
+          dpg.add_button(label='Enter',callback=create_accounts)
+
+def create_accounts():
      counter = 1
      while counter > 0:
-        create_username = str(input('Input a username: '))
-        create_password = str(input('Input a password: '))
-        username_exists = False
-        logins = read_accounts()
-        for line in logins:
-            if line[0] == create_username:
-                username_exists = True
-                break
-        if username_exists:
-            print('Username already exists, please choose a different one')
-        else:
-            with open('Accounts_NEA.txt', 'a') as account_make:
-                account_make.write(f'{create_username},{create_password}\n')
-            print('Account created successfully')
+          create_username = str(dpg.get_value('username'))
+          create_password = str(dpg.get_value('password'))
+          username_exists = False
+          logins = read_accounts()
+          for line in logins:
+               if line[0] == create_username:
+                    username_exists = True
+                    break
+          if username_exists:
+               with dpg.window(label='Creation fail',tag='create_fail'):
+                    counter = 0
+                    dpg.add_text('Creation failed username already exists please try again')
+                    time.sleep(1)
+                    delete_window('create_fail')
+          else:
+               with open('Accounts_NEA.txt', 'a') as account_make:
+                    account_make.write(f'{create_username},{create_password}\n')
 
-            user_folder = os.path.join(os.getcwd(), create_username)
-            if not os.path.exists(user_folder):
-                os.makedirs(user_folder)
-                print(f'Folder "{create_username}" created successfully.')
-            else:
-                print(f'Folder "{create_username}" already exists.')
-                      
-            counter = -1
-     login()
+               with dpg.window(label='Creation successful',tag='create_success'):
+                    dpg.add_text('Account created successfully')
+                    time.sleep(1)
+                    delete_window('create_success')
+               print('Account created successfully')
+
+               user_folder = os.path.join(os.getcwd(), create_username)
+               if not os.path.exists(user_folder):
+                    os.makedirs(user_folder)
+                    print(f'Folder "{create_username}" created successfully.')
+               else:
+                    print(f'Folder "{create_username}" already exists.')
+                         
+               counter = -1
+               delete_window('account_create')
+               login_GUI(0)
+
+#GUI CODE START
+
+entry_window = 1
+
+with dpg.window(label='Entrypage',tag=entry_window,width=1920,height=1080):
+     dpg.add_text('Welcome to the yugioh duel matrix, please login or create an account')
+     dpg.add_button(label='Login',callback=login_GUI)
+     dpg.add_button(label='Create',callback=create_accounts_GUI)
+
+
+
+
+dpg.setup_dearpygui()
+dpg.show_viewport()
+dpg.start_dearpygui()
+dpg.destroy_context()
+
+
 
 #terminal side UI for test
 
-check = False
-while check == False :
-     entry = input('''Welcome to the program:
-               click 1 to create an account
-               click 2 to login
-               : ''')
-     if entry == '1':
-          create_accounts()
-          check = True
-     elif entry == '2':
-          login()
-          check = True
-
-
-
-          
-
-
-
-
-
-
-
-
-
-
-
-# ##GUI set up code
-
-# dpg.create_context()
-# dpg.configure_app(docking=True, docking_space=True, load_init_file="custom_layout.ini") # must be called before create_viewport
-# dpg.create_viewport(title='Yugioh duel matrix',width=1920,height=1080)
-# dpg.setup_dearpygui()
-
-# # generate IDs - the IDs are used by the init file, they must be the
-# #                same between sessions
-# left_window = dpg.generate_uuid()
-# right_window = dpg.generate_uuid()
-# top_window = dpg.generate_uuid()
-# bottom_window = dpg.generate_uuid()
-# center_window = dpg.generate_uuid()
-# param =''
-
-
-
-
-# def hide_window(param):
-#      dpg.configure_item(param,show=True)
-
-# def show_window(param):
-#      dpg.configure_item(param,show=True)
-
-
-# def window_selection(sender,data):
-#      print(dpg.get_value('select window'))
-#      param= dpg.get_value('select window')
-#      hide_window(dpg.get_value('select window'))
-#      time.sleep(5)
-#      show_window(dpg.get_value('select window'))
-     
-
-
-
-# dpg.add_window(label="Left", tag=left_window,show=True,no_move=True)
-#      #dpg.set_item_pos('left_window',pos=(1000,0))
-# dpg.add_window(label="Right", tag=right_window,show=True,no_move=True)
-# dpg.add_window(label="Top", tag=top_window,show=True,no_move=True)
-# dpg.add_window(label="Bottom", tag=bottom_window,show=True,no_move=True)
-# with dpg.window(label="Center", tag=center_window,show=True,no_move=True):
-#      dpg.add_input_text(label='Select window',on_enter=True,callback=window_selection,tag='select window')
-#      dpg.add_button(label='Click',callback=window_selection)
-     
-
-
-
-# #dpg.set_primary_window('center_window',True)
-
-
-
-
-# # main loop
-# dpg.show_viewport()
-# while dpg.is_dearpygui_running():
-#     dpg.render_dearpygui_frame()  
-
-# dpg.destroy_context()
+# check = False
+# while check == False :
+#      entry = input('''Welcome to the program:
+#                click 1 to create an account
+#                click 2 to login
+#                : ''')
+#      if entry == '1':
+#           create_accounts()
+#           check = True
+#      elif entry == '2':
+#           login()
+#           check = True
