@@ -97,7 +97,7 @@ def inital_search_func(search):
 
 #eextra information search function
 def on_click_search_func(search):
-     search_data =j_compact_print(search.json())
+     search_data =json.loads(j_compact_print(search.json()))
 
      if "data" not in search_data:
           print("No valid card data found.")
@@ -285,7 +285,7 @@ def database_call(search_dict):
 
                     with dpg.window(label='Search result',tag='search_result'):
                          dpg.add_text('your search result is')
-                         dpg.add_text(f'{r}')
+                         dpg.add_text(f'{inital_search_func(r)}',multiline=True)
                     return r
                else:
                     print(f'error:{r.status_code}')
@@ -588,6 +588,7 @@ def mode_search_GUI(sender):
           delete_window('deck_create')
      if dpg.does_item_exist('open_deck'):
           delete_window('open_deck')
+
      with dpg.item_handler_registry(tag='click_check') as handler:
           dpg.add_item_clicked_handler(callback=mode_search_click_check)
      with dpg.item_handler_registry(tag='visble_check') as handler:
@@ -595,29 +596,14 @@ def mode_search_GUI(sender):
 
      with dpg.window(label='Getting param number',tag='param_num_ask',width=1920,height=1080):
           dpg.add_input_text(label='how many parameters would you like to pass?:',tag='parameter_number')
-          dpg.add_button(label='enter',tag='enter_search',callback=mode_search)
+          dpg.add_button(label='enter',tag='enter_search')
           dpg.add_button(label='dummy button',tag='dummy',show=False)
 
      dpg.bind_item_handler_registry('enter_search','click_check')
      dpg.bind_item_handler_registry('dummy','visble_check')
 
 def mode_search_click_check(sender):
-     p = mode_search_parameter_num()
-     if p.isdigit():
-          dpg.hide_item('parameter_number')
-          dpg.hide_item('enter_search')
-          dpg.show_item('dummy')
-
-def mode_search_visble_check(sender):
-     delete_window('param_num_ask')
-     with dpg.window(label='Taking in data',tag='search_data',width=1920,height=1080):
-          dpg.add_text('Please input card parameters and corresponding variables (to add new ones remove old and click enter again)')
-          dpg.add_text(f'The parameters passable are name,fname,id,type,atk,def,level,race,attribute,link,linkmarker,scale,cardset,archetype,banlist')
-          dpg.add_input_text(label='Parameter: ',tag='card_parameter')
-          dpg.add_input_text(label='Variable:',tag='corresponding_variable')
-          dpg.add_button(label='enter',tag='enter_search',callback=mode_search)
-
-def mode_search_parameter_num():
+     global parameter_number
      parameter_number = str(dpg.get_value('parameter_number'))
      while not parameter_number.isdigit():
                with dpg.window(label='Input error',tag='input_error'):
@@ -638,13 +624,49 @@ def mode_search_parameter_num():
                     time.sleep(1)
                     delete_window('input_error')
 
+     if parameter_number <= 15:          
+          dpg.hide_item('parameter_number')
+          dpg.hide_item('enter_search')
+          dpg.show_item('dummy')
 
-     return str(parameter_number)
 
-def mode_search(sender):
+def mode_search_visble_check(sender):
+     delete_window('param_num_ask')
+     with dpg.window(label='Taking in data',tag='search_data',width=1920,height=1080):
+          dpg.add_text('Please input card parameters and corresponding variables (to add new ones remove old and click enter again)')
+          dpg.add_text(f'The parameters passable are name,fname,id,type,atk,def,level,race,attribute,link,linkmarker,scale,cardset,archetype,banlist')
+          dpg.add_input_text(label='Parameter: ',tag='card_parameter')
+          dpg.add_input_text(label='Variable:',tag='corresponding_variable')
+          dpg.add_button(label='enter',tag='enter_search',callback=mode_search,user_data=parameter_number)
+
+# def mode_search_parameter_num(sender):
+#      parameter_number = str(dpg.get_value('parameter_number'))
+#      while not parameter_number.isdigit():
+#                with dpg.window(label='Input error',tag='input_error'):
+#                     dpg.add_text('Error input was not a number')
+#                     time.sleep(1)
+#                     delete_window('input_error')
+
+#      parameter_number = int(parameter_number)
+     
+#      while parameter_number > 15 :
+#           with dpg.window(label='Input error',tag='input_error2'):
+#                     dpg.add_text('Error input number greater 15')
+#                     time.sleep(1)
+#                     delete_window('input_error2')
+#           while not parameter_number.isdigit():
+#                with dpg.window(label='Input error',tag='input_error'):
+#                     dpg.add_text('Error input was not a number')
+#                     time.sleep(1)
+#                     delete_window('input_error')
+
+
+     
+
+def mode_search(sender,app_data,user_data):
      search_dict = {}
      
-     parameter_number = int(mode_search_parameter_num())
+     parameter_number = user_data
 
      for i in range(parameter_number):
           Flag = False
@@ -674,7 +696,7 @@ def mode_search(sender):
           with dpg.window(label='post result',tag='post_result'):
                dpg.add_text('search complete access deck builder or search again or close program?')
                dpg.add_button(label='search again',tag='search_again',callback=mode_create_GUI)
-               dpg.add_button(label='begin deck build',tag='deck_build',callback=mode_dbe_GUI)
+               dpg.add_button(label='begin deck build',tag='deck_build',callback=mode_dbe_GUI,)
                dpg.add_button(label='close program',tag='stop',callback=mode_stop)
                counter = 0
 #FUNCTION THAT CHANGES MODES
