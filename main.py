@@ -14,7 +14,7 @@ deck_legal = True
 
 #ALL THE STRINGS TO CHECK VARIABLES AGAINST
 list_of_extradeck_monsters = ['FUSION MONSTER','LINK MONSTER','PENDULUM EFFECT FUSION MONSTER','SYNCHRO MONSTER','SYNCHRO PENDULUM EFFECT MONSTER','SYNCHRO TUNER MONSTER','XYZ MONSTER','XYZ PENDULUM EFFECT MONSTER']
-list_of_modes = ['search','dbe','dev','stop','create','menu','open']
+list_of_modes = ['search','dbe','stop','create','open']
 list_of_races = ['aqua','beast','beast-warrior','creator-god','cyberse','dinosaur','divine-beast','dragon','fairy','fiend','fish','insect','machine','plant','psychic','pyro','reptile','rock','sea serpent','spellcaster','thunder','warrior','winged beast','wyrm','zombie','normal','field','equip','continuous','quick-play','ritual','normal','continuous','counter']
 list_of_acceptable_params = ['name','fname','id','type','atk','def','level','race','attribute','link','linkmarker','scale','cardset','archetype','banlist'] #LIST OF ACCEPTABLE PARAMETERS
 list_of_attributes = ['DARK','DIVINE','EARTH','FIRE','LIGHT','WATER','WIND']
@@ -570,6 +570,7 @@ def mode_search():
 def mode_changer():
      counter = 1
      while counter > 0 :
+          print('The list of possible modes are',f'{list_of_modes}')
           mode = input('what mode are we in: ').lower()
           if mode not in list_of_modes:
                print('incorrect mode')
